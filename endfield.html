@@ -1,130 +1,164 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Endfield Combo Simulator</title>
     <link rel="icon" type="image/png" href="imagens/favicon.png">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div class="top-bar">
-        <button id="btn-lang" class="btn-lang" onclick="toggleLang()">🇺🇸 English</button>
-    </div>
-
-    <div class="painel-superior">
-        <div class="esquadrao-container">
-            <h2 id="text-formacao-h2">Formação (<span id="contador-esquadrao">0</span>/4)</h2>
-            <p id="text-arraste" class="instrucao-texto">Arraste os personagens. Clique em ⚙️ para configurar.</p>
-            <div class="slots-esquadrao" id="slots-esquadrao"></div>
+    <header class="header-nav">
+        <div class="logo-area">
+            <h1>ENDFIELD <span>TACTICAL SYS</span></h1>
         </div>
+    </header>
 
-        <div class="lista-container">
-            <h2 id="text-personagens-h2">Personagens</h2>
-            <div class="controles-pesquisa">
-                <input type="text" id="busca-nome" class="caixa-busca" placeholder="Pesquisar por nome..." onkeyup="renderizarPersonagens()">
-                <div class="filtros">
-                    <select id="filtro-elemento" onchange="renderizarPersonagens()">
-                        <option value="Todos">Todos Elementos</option>
-                        <option value="Físico">Físico</option>
+    <main class="main-layout">
+        <aside class="roster-panel">
+            <div class="panel-header">
+                <h2>Roster Database</h2>
+                <div class="search-filters">
+                    <input type="text" id="search-name" class="tech-input" placeholder="Search operator..." onkeyup="renderCharacters()">
+                    <select id="filter-element" class="tech-input" onchange="renderCharacters()">
+                        <option value="All">All Elements</option>
+                        <option value="Physical">Physical</option>
                         <option value="Heat">Heat</option>
                         <option value="Cryo">Cryo</option>
                         <option value="Nature">Nature</option>
                         <option value="Electric">Electric</option>
-                        <option value="Originium Arts">Arts</option>
+                        <option value="Arts">Originium Arts</option>
                     </select>
                 </div>
-                <button class="btn-limpar" id="btn-limpar" onclick="limparEsquadrao()">Limpar Time</button>
-                <button class="btn-reset-geral" id="btn-reset-geral" onclick="resetarTudo()">Resetar Tudo</button>
+                <div class="roster-actions">
+                    <button class="btn-ghost" onclick="clearSquad()">Clear Squad</button>
+                    <button class="btn-danger" onclick="openConfirmModal()">Reset Database</button>
+                </div>
             </div>
-            <div class="grid-personagens" id="grid-personagens"></div>
+            
+            <div class="character-grid" id="character-grid"></div>
+        </aside>
+
+        <section class="tactical-panel">
+            <div class="squad-board">
+                <h2>Active Formation (<span id="squad-counter">0</span>/4)</h2>
+                <p class="sub-text">Drag operators from the roster or drag within the squad to reorder.</p>
+                <div class="squad-slots" id="squad-slots"></div>
+            </div>
+
+            <div class="combo-board">
+                <h2>Combat Sequence</h2>
+                <div class="combo-track" id="combo-track"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <div id="modal-confirm" class="modal">
+        <div class="modal-content modal-sm">
+            <h2 class="warning-text">SYSTEM RESET</h2>
+            <p>Are you sure you want to reset all configurations, levels, and clear the active squad?</p>
+            <div class="modal-actions mt-20">
+                <button class="btn-ghost" onclick="closeConfirmModal()">Cancel</button>
+                <button class="btn-danger" onclick="executeResetAll()">Confirm Reset</button>
+            </div>
         </div>
     </div>
 
-    <div class="combo-container">
-        <h2 id="text-combo-h2">Simulação de Combo</h2>
-        <div class="trilha-combo" id="trilha-combo"></div>
-    </div>
-
-    <div id="modal-sinergia" class="modal">
-        <div class="modal-content">
-            <span class="fechar-modal" onclick="fecharModalSinergia()">&times;</span>
-            <h2 id="modal-titulo-sinergia">Sugestões de Times</h2>
-            <p id="text-modal-sinergia-desc" class="instrucao-texto">Escolha a formação que melhor se adapta à sua estratégia.</p>
-            <div id="container-times-sugeridos"></div>
+    <div id="modal-synergy" class="modal">
+        <div class="modal-content modal-lg">
+            <span class="close-btn" onclick="closeSynergyModal()">&times;</span>
+            <h2 id="modal-synergy-title">Tactical Suggestions</h2>
+            <p class="sub-text">Recommended formations based on element and combat mechanics.</p>
+            <div id="suggested-teams-container"></div>
         </div>
     </div>
 
     <div id="modal-config" class="modal">
-        <div class="modal-content modal-largo">
-            <span class="fechar-modal" onclick="fecharModalConfig()">&times;</span>
+        <div class="modal-content modal-xl">
+            <span class="close-btn" onclick="closeConfigModal()">&times;</span>
             
             <div class="config-header">
                 <div class="config-avatar" id="config-avatar"></div>
-                <div>
-                    <h2><span id="label-config-titulo">Configuração:</span> <span id="config-nome-personagem"></span></h2>
-                    <div class="input-inline">
-                        <label id="label-nivel">Nível do Operador:</label>
-                        <input type="number" id="conf-nivel" min="1" max="80" value="1">
+                <div class="config-title">
+                    <h2><span id="config-char-name"></span> <span class="badge" id="config-origin-badge"></span></h2>
+                    <div class="level-input-group">
+                        <label>Operator LVL (1-90)</label>
+                        <input type="number" id="conf-level" class="tech-input text-center" min="1" max="90" value="1">
                     </div>
                 </div>
             </div>
             
-            <div class="grid-configuracao-pro">
-                <div class="coluna-config">
-                    <div class="bloco-config">
-                        <h3 id="title-arma">⚔️ Armamento Equipado</h3>
-                        <div class="arma-seletor-container">
-                            <div class="arma-img-preview" id="preview-arma"></div>
-                            <select id="conf-arma-id" onchange="atualizarPreviewArma()"></select>
+            <div class="config-grid">
+                <div class="config-col">
+                    <div class="data-block">
+                        <h3>Weapon Systems</h3>
+                        <div class="weapon-display">
+                            <div class="weapon-preview" id="preview-weapon"></div>
+                            <select id="conf-weapon-id" class="tech-input full-width" onchange="updateWeaponPreview()"></select>
                         </div>
-                        <div class="inputs-triplos">
-                            <div><label id="label-arma-nivel">Nível</label><input type="number" id="conf-arma-nivel" min="1" max="80" value="1"></div>
-                            <div><label id="label-arma-essencia">Essência</label><input type="number" id="conf-arma-essencia" min="1" max="3" value="1"></div>
-                            <div><label id="label-arma-potencial">Potencial</label><input type="number" id="conf-arma-potencial" min="1" max="5" value="1"></div>
+                        <div class="triple-grid mt-10">
+                            <div><label>Level (1-90)</label><input type="number" id="conf-weapon-level" class="tech-input" min="1" max="90" value="1"></div>
+                            <div><label>Essence</label><input type="number" id="conf-weapon-essence" class="tech-input" min="1" max="5" value="1"></div>
+                            <div><label>Potential</label><input type="number" id="conf-weapon-potential" class="tech-input" min="1" max="5" value="1"></div>
                         </div>
                     </div>
 
-                    <div class="bloco-config">
-                        <h3 id="title-set">🛡️ Set de Fábrica / Armadura</h3>
-                        <select id="conf-armadura-id" class="select-largo"></select>
-                        <div class="input-inline" style="margin-top:10px;">
-                            <label id="label-set-nivel">Nível do Set (Upgrade):</label>
-                            <input type="number" id="conf-armadura-nivel" min="0" max="20" value="0">
+                    <div class="data-block">
+                        <h3>Factory Equipment (LVL 70 Sets)</h3>
+                        <div class="gear-grid">
+                            <div class="gear-item">
+                                <label>HEAD</label>
+                                <select id="conf-armor-head" class="tech-input full-width"></select>
+                                <input type="number" id="conf-lvl-head" class="tech-input text-center" min="0" max="20" value="0" title="Enhancement Level">
+                            </div>
+                            <div class="gear-item">
+                                <label>CORE</label>
+                                <select id="conf-armor-chest" class="tech-input full-width"></select>
+                                <input type="number" id="conf-lvl-chest" class="tech-input text-center" min="0" max="20" value="0" title="Enhancement Level">
+                            </div>
+                            <div class="gear-item">
+                                <label>ARMS</label>
+                                <select id="conf-armor-arms" class="tech-input full-width"></select>
+                                <input type="number" id="conf-lvl-arms" class="tech-input text-center" min="0" max="20" value="0" title="Enhancement Level">
+                            </div>
+                            <div class="gear-item">
+                                <label>LEGS</label>
+                                <select id="conf-armor-legs" class="tech-input full-width"></select>
+                                <input type="number" id="conf-lvl-legs" class="tech-input text-center" min="0" max="20" value="0" title="Enhancement Level">
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="coluna-config">
-                    <div class="bloco-config matriz-capacidade">
-                        <h3 id="title-skills">🧬 Matriz de Capacidade (Skills)</h3>
-                        
-                        <div class="skill-row">
-                            <div class="skill-info"><span class="skill-tipo" id="label-skill-1">Ataque Básico</span><span class="skill-nome" id="nome-skill-1"></span></div>
-                            <input type="number" id="conf-skill-1" min="1" max="7" value="1">
-                        </div>
-                        
-                        <div class="skill-row">
-                            <div class="skill-info"><span class="skill-tipo" id="label-skill-2">Habilidade Ativa</span><span class="skill-nome" id="nome-skill-2"></span></div>
-                            <input type="number" id="conf-skill-2" min="1" max="7" value="1">
-                        </div>
-                        
-                        <div class="skill-row">
-                            <div class="skill-info"><span class="skill-tipo" id="label-skill-3">Ultimate / Combo</span><span class="skill-nome" id="nome-skill-3"></span></div>
-                            <input type="number" id="conf-skill-3" min="1" max="7" value="1">
-                        </div>
-
-                        <div class="skill-row">
-                            <div class="skill-info"><span class="skill-tipo" id="label-skill-4">Passiva / Talento</span><span class="skill-nome" id="nome-skill-4"></span></div>
-                            <input type="number" id="conf-skill-4" min="1" max="7" value="1">
+                <div class="config-col">
+                    <div class="data-block h-full">
+                        <h3>Capacity Matrix & Talents</h3>
+                        <div class="matrix-list">
+                            <div class="matrix-row">
+                                <div class="matrix-info"><span class="highlight">Basic Attack</span><span id="name-skill-1"></span></div>
+                                <input type="number" id="conf-skill-1" class="tech-input text-center" min="1" max="7" value="1">
+                            </div>
+                            <div class="matrix-row">
+                                <div class="matrix-info"><span class="highlight">Active Skill</span><span id="name-skill-2"></span></div>
+                                <input type="number" id="conf-skill-2" class="tech-input text-center" min="1" max="7" value="1">
+                            </div>
+                            <div class="matrix-row">
+                                <div class="matrix-info"><span class="highlight">Ultimate</span><span id="name-skill-3"></span></div>
+                                <input type="number" id="conf-skill-3" class="tech-input text-center" min="1" max="7" value="1">
+                            </div>
+                            <div class="matrix-row">
+                                <div class="matrix-info"><span class="highlight">Passive Talent</span><span id="name-skill-4"></span></div>
+                                <div class="talent-toggles" id="talent-nodes-container"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="botoes-config">
-                <button class="btn-reset-config" id="btn-reset-config" onclick="resetarConfiguracao()">🔄 Resetar Padrão</button>
-                <button class="btn-salvar-config" id="btn-salvar-config" onclick="salvarConfiguracao()">💾 Salvar Atributos</button>
+            <div class="modal-actions mt-20">
+                <button class="btn-ghost" onclick="resetConfig()">Restore Defaults</button>
+                <button class="btn-primary" onclick="saveConfig()">Save Parameters</button>
             </div>
         </div>
     </div>
