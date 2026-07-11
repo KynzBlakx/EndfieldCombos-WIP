@@ -1,490 +1,378 @@
-// =========================================================================
-// SISTEMA DE INTERNACIONALIZAÇÃO (PT-BR / EN)
-// =========================================================================
-let currentLang = 'pt';
+let squad = [null, null, null, null];
+let activeOrigin = null; 
+let activeId = null;
 
-const langDict = {
-    "pt": {}, 
-    "en": {
-        "Formação": "Formation",
-        "Arraste os personagens. Clique em ⚙️ para configurar.": "Drag characters. Click ⚙️ to configure.",
-        "Personagens": "Characters",
-        "Pesquisar por nome...": "Search by name...",
-        "Todos Elementos": "All Elements",
-        "Limpar Time": "Clear Team",
-        "Resetar Tudo": "Reset All",
-        "Simulação de Combo": "Combo Simulation",
-        "Sugestões de Times": "Team Suggestions",
-        "Escolha a formação que melhor se adapta à sua estratégia.": "Choose the formation that best fits your strategy.",
-        "Configuração:": "Configuration:",
-        "Nível do Operador:": "Operator Level:",
-        "⚔️ Armamento Equipado": "⚔️ Equipped Weapon",
-        "Nível": "Level",
-        "Essência": "Essence",
-        "Potencial": "Potential",
-        "🛡️ Set de Fábrica / Armadura": "🛡️ Factory Set / Armor",
-        "Nível do Set (Upgrade):": "Set Level (Upgrade):",
-        "🧬 Matriz de Capacidade (Skills)": "🧬 Capacity Matrix (Skills)",
-        "Ataque Básico": "Basic Attack",
-        "Habilidade Ativa": "Active Skill",
-        "Ultimate / Combo": "Ultimate / Combo",
-        "Passiva / Talento": "Passive / Talent",
-        "🔄 Resetar Padrão": "🔄 Reset Default",
-        "💾 Salvar Atributos": "💾 Save Attributes",
-        "Sugerir Times": "Suggest Teams",
-        "Substituir Esquadrão": "Replace Squad",
-        "Vazio": "Empty",
-        "(Arraste)": "(Drag)",
-        "Ficha Base": "Base Profile",
-        "Esquadrão": "Squad",
-        "AvisoResetTudo": "Are you sure you want to reset all characters to Level 1?",
-        
-        "Físico": "Physical",
-        "Quebra de Toughness": "Toughness Break",
-        "Nenhum": "None",
-        "Inflição Térmica": "Thermal Infliction",
-        "Vulnerabilidade": "Vulnerability",
-        "Quebra de Postura": "Posture Break",
-        "Inflição Cryo": "Cryo Infliction",
-        "Congelamento": "Freeze",
-        "Lentidão": "Slow",
-        "Suscetibilidade Física": "Physical Susceptibility",
-        "Dano em Área": "AoE Damage",
-        "Dano Contínuo": "DoT Damage",
-        "Paralisia": "Paralysis",
-        "Stagger / Heat": "Stagger / Heat",
-        "Vulnerabilidade Térmica": "Thermal Vulnerability",
-        
-        "precisa:": "needs:",
-        "e então aplica:": "and then applies:",
-        "Adicione personagens ao esquadrão para ver a lógica de combos.": "Add characters to the squad to see combo logic.",
-        "Melhores Formações para": "Best Formations for",
-        "Estratégia: Sinergia de Combo": "Strategy: Combo Synergy",
-        "Estratégia: Foco Elemento": "Strategy: Element Focus",
-        "Estratégia: Controle de Grupo Absoluto": "Strategy: Absolute Crowd Control",
+// Enforces limits on number inputs securely
+function clamp(val, min, max) {
+    let num = parseInt(val);
+    if(isNaN(num)) return min;
+    return Math.min(max, Math.max(min, num));
+}
 
-        "Arma Inicial Padrão": "Default Starter Weapon",
-        "Lâmina de Talos": "Talos Blade",
-        "Espada Dupla Mercenária": "Mercenary Twin Blades",
-        "Machado Pesado": "Heavy Axe",
-        "Nenhum Set Equipado": "No Set Equipped",
-        "Conjunto do Mercenário (Foco em Dano Físico)": "Mercenary Set (Physical Focus)",
-        "Conjunto do Ponto de Ignição (Dano Heat)": "Flashpoint Set (Heat DMG)",
-        "Conjunto Quebrador de Escudos (Toughness Dmg)": "Shieldbreaker Set (Toughness Dmg)",
-        "Conjunto do Campo de Artes (Cura e Suporte)": "Arts Field Set (Heal & Support)",
-        "Conjunto da Tempestade (Dano Elétrico)": "Storm Set (Electric DMG)",
-        "Conjunto Zero Absoluto (Dano Cryo)": "Absolute Zero Set (Cryo DMG)",
-        "Conjunto Anomalia Gravitacional (Nature)": "Gravity Anomaly Set (Nature)",
-        "Conjunto Linha de Frente (Defesa/Taunt)": "Frontline Set (Defense/Taunt)"
-    }
+// Complete Weapons Database (Nomenclature and archetypes)
+const weaponsDB = [
+    // Longswords
+    { id: "wpn_lg_01", name: "Endfield Standard Longsword", type: "Longsword", img: "wpn_std_long.jpg", base_atk: 45 },
+    { id: "wpn_lg_02", name: "Talos Blade", type: "Longsword", img: "wpn_talos.jpg", base_atk: 55 },
+    { id: "wpn_lg_03", name: "Valley Protector", type: "Longsword", img: "wpn_rossi.jpg", base_atk: 65 },
+    { id: "wpn_lg_04", name: "Mercenary Edge", type: "Longsword", img: "wpn_mercenary.jpg", base_atk: 50 },
+    { id: "wpn_lg_05", name: "Knight's Oath", type: "Longsword", img: "wpn_knight.jpg", base_atk: 60 },
+    // Greatswords
+    { id: "wpn_gs_01", name: "Endfield Standard Greatsword", type: "Greatsword", img: "wpn_std_great.jpg", base_atk: 50 },
+    { id: "wpn_gs_02", name: "Sunderblade", type: "Greatsword", img: "wpn_sunder.jpg", base_atk: 60 },
+    { id: "wpn_gs_03", name: "Heavy Axe", type: "Greatsword", img: "wpn_machado.jpg", base_atk: 55 },
+    { id: "wpn_gs_04", name: "Earthshaker", type: "Greatsword", img: "wpn_earthshaker.jpg", base_atk: 65 },
+    { id: "wpn_gs_05", name: "Crimson Cleaver", type: "Greatsword", img: "wpn_cleaver.jpg", base_atk: 58 },
+    // Staffs / Scepters
+    { id: "wpn_st_01", name: "Endfield Standard Staff", type: "Staff", img: "wpn_std_staff.jpg", base_atk: 42 },
+    { id: "wpn_st_02", name: "Gravity Scepter", type: "Staff", img: "wpn_gilberta.jpg", base_atk: 62 },
+    { id: "wpn_st_03", name: "Originium Orb", type: "Staff", img: "wpn_orbe.jpg", base_atk: 65 },
+    { id: "wpn_st_04", name: "Sage's Wand", type: "Staff", img: "wpn_sage.jpg", base_atk: 55 },
+    { id: "wpn_st_05", name: "Void Staff", type: "Staff", img: "wpn_void.jpg", base_atk: 60 },
+    // Polearms
+    { id: "wpn_pl_01", name: "Endfield Standard Polearm", type: "Polearm", img: "wpn_std_pole.jpg", base_atk: 46 },
+    { id: "wpn_pl_02", name: "Silver Lance", type: "Polearm", img: "wpn_lance.jpg", base_atk: 56 },
+    { id: "wpn_pl_03", name: "Dragon Halberd", type: "Polearm", img: "wpn_dragon.jpg", base_atk: 64 },
+    { id: "wpn_pl_04", name: "Storm Piercer", type: "Polearm", img: "wpn_storm.jpg", base_atk: 60 },
+    { id: "wpn_pl_05", name: "Royal Pike", type: "Polearm", img: "wpn_royal.jpg", base_atk: 58 },
+    // Firearms
+    { id: "wpn_fa_01", name: "Endfield Standard Firearm", type: "Firearm", img: "wpn_std_fire.jpg", base_atk: 48 },
+    { id: "wpn_fa_02", name: "Tactical Flamethrower", type: "Firearm", img: "wpn_ember.jpg", base_atk: 58 },
+    { id: "wpn_fa_03", name: "Precise Sniper", type: "Firearm", img: "wpn_sniper.jpg", base_atk: 65 },
+    { id: "wpn_fa_04", name: "Burst Rifle", type: "Firearm", img: "wpn_burst.jpg", base_atk: 55 },
+    { id: "wpn_fa_05", name: "Originium Blaster", type: "Firearm", img: "wpn_blaster.jpg", base_atk: 62 },
+    // Twinblades / Daggers
+    { id: "wpn_tw_01", name: "Mercenary Twin Blades", type: "Twinblade", img: "wpn_mercenaria.jpg", base_atk: 44 },
+    { id: "wpn_tw_02", name: "Assassin's Fangs", type: "Twinblade", img: "wpn_fangs.jpg", base_atk: 58 },
+    { id: "wpn_tw_03", name: "Shadow Edges", type: "Twinblade", img: "wpn_shadow.jpg", base_atk: 62 }
+];
+
+// Complete Lvl 70 Equipment Sets
+const armorSetsDB = [
+    { id: "set_none", name: "No Equipment", set_effect: "None" },
+    { id: "set_merc", name: "Mercenary Set", set_effect: "Phys DMG" },
+    { id: "set_flash", name: "Flashpoint Set", set_effect: "Heat DMG" },
+    { id: "set_zero", name: "Absolute Zero Set", set_effect: "Cryo DMG" },
+    { id: "set_storm", name: "Storm Set", set_effect: "Electric DMG" },
+    { id: "set_grav", name: "Gravity Anomaly Set", set_effect: "Nature DMG" },
+    { id: "set_arts", name: "Arts Field Set", set_effect: "Arts DMG" },
+    { id: "set_shield", name: "Shieldbreaker Set", set_effect: "Toughness" },
+    { id: "set_front", name: "Frontline Set", set_effect: "Def/HP" },
+    { id: "set_strike", name: "Striker Set", set_effect: "Crit Rate" },
+    { id: "set_assassin", name: "Assassin Set", set_effect: "Crit DMG" }
+];
+
+const characters = [
+    { id: "001", name: "Akekuri", element: "Physical", img: "akekuri.jpg", initiates: "None", continues: "Stun", skills: { basic: { name: "Fast Slash" }, active: { name: "Tactical Dash" }, ult: { name: "Crushing Blow" }, passive: { name: "Battle Focus" } } },
+    { id: "002", name: "Alesh", element: "Physical", img: "alesh.jpg", initiates: "None", continues: "Toughness Break", skills: { basic: { name: "Precise Shot" }, active: { name: "Piercing Shot" }, ult: { name: "Bullet Rain" }, passive: { name: "Optical Aim" } } },
+    { id: "003", name: "Antal", element: "Nature", img: "antal.jpg", initiates: "Buff", continues: "None", skills: { basic: { name: "Spore Shot" }, active: { name: "Revitalizing Seed" }, ult: { name: "Bloom Field" }, passive: { name: "Symbiosis" } } },
+    { id: "004", name: "Arclight", element: "Electric", img: "arclight.jpg", initiates: "Paralysis", continues: "None", skills: { basic: { name: "Spark" }, active: { name: "Chain Shock" }, ult: { name: "Magnetic Storm" }, passive: { name: "Living Battery" } } },
+    { id: "005", name: "Ardelia", element: "Nature", img: "ardelia.jpg", initiates: "Vulnerability", continues: "None", skills: { basic: { name: "Leaf Ray" }, active: { name: "Cutting Vines" }, ult: { name: "Thorn Prison" }, passive: { name: "Nature's Touch" } } },
+    { id: "006", name: "Avywenna", element: "Physical", img: "avywenna.jpg", initiates: "None", continues: "Toughness Break", skills: { basic: { name: "Double Attack" }, active: { name: "Cutting Fury" }, ult: { name: "Blade Whirlwind" }, passive: { name: "Mercenary Instinct" } } },
+    { id: "007", name: "Camille", element: "Heat", img: "camille.jpg", initiates: "Thermal Infliction", continues: "Vulnerability", skills: { basic: { name: "Hot Shot" }, active: { name: "Phosphorus Grenade" }, ult: { name: "Ignition Zone" }, passive: { name: "Lingering Fire" } } },
+    { id: "008", name: "Catcher", element: "Physical", img: "catcher.jpg", initiates: "Taunt", continues: "None", skills: { basic: { name: "Shield Strike" }, active: { name: "Tactical Provocation" }, ult: { name: "Impassable Stance" }, passive: { name: "Solid Vanguard" } } },
+    { id: "009", name: "Chen Qianyu", element: "Physical", img: "chen.jpg", initiates: "Knockback", continues: "None", skills: { basic: { name: "Dragon Fist" }, active: { name: "Repulsive Palm" }, ult: { name: "Lungmen Fury" }, passive: { name: "Ancestral Art" } } },
+    { id: "010", name: "Da Pan", element: "Physical", img: "dapan.jpg", initiates: "Crush", continues: "Stun", skills: { basic: { name: "Heavy Swing" }, active: { name: "Seismic Strike" }, ult: { name: "Total Smash" }, passive: { name: "Brute Force" } } },
+    { id: "011", name: "Ember", element: "Heat", img: "ember.jpg", initiates: "Thermal Infliction", continues: "None", skills: { basic: { name: "Flamethrower" }, active: { name: "Fire Barrier" }, ult: { name: "Thermal Explosion" }, passive: { name: "Primal Ignition" } } },
+    { id: "012", name: "Endministrator", element: "Physical", img: "endmin.jpg", initiates: "Toughness Break", continues: "Any", skills: { basic: { name: "Modular Slash" }, active: { name: "Crushing Beam" }, ult: { name: "Contingency Overload" }, passive: { name: "Talos Synergy" } } },
+    { id: "013", name: "Estella", element: "Physical", img: "estella.jpg", initiates: "None", continues: "Toughness Break", skills: { basic: { name: "Agile Blade" }, active: { name: "Double Cut" }, ult: { name: "Sword Dance" }, passive: { name: "Combat Reflex" } } },
+    { id: "014", name: "Fluorite", element: "Arts", img: "fluorite.jpg", initiates: "Slow", continues: "None", skills: { basic: { name: "Crystal Projectile" }, active: { name: "Mineral Prison" }, ult: { name: "Resonance" }, passive: { name: "Retarding Glow" } } },
+    { id: "015", name: "Gilberta", element: "Nature", img: "gilberta.jpg", initiates: "Airborne", continues: "Toughness Break", skills: { basic: { name: "Gravity Beam" }, active: { name: "Weight Inversion" }, ult: { name: "Anti-Gravity Field" }, passive: { name: "Angelina's Heritage" } } },
+    { id: "016", name: "Laevatain", element: "Heat", img: "laevatain.jpg", initiates: "Stagger", continues: "Vulnerability", skills: { basic: { name: "Flaming Strike" }, active: { name: "Caloric Blow" }, ult: { name: "Blade Eruption" }, passive: { name: "Relentless Heat" } } },
+    { id: "017", name: "Last Rite", element: "Cryo", img: "lastrite.jpg", initiates: "Freeze", continues: "Cryo Infliction", skills: { basic: { name: "Frost Scythe" }, active: { name: "Sudden Blizzard" }, ult: { name: "Absolute Zero" }, passive: { name: "Winter's Embrace" } } },
+    { id: "018", name: "Lifeng", element: "Physical", img: "lifeng.jpg", initiates: "Susceptibility", continues: "None", skills: { basic: { name: "Swift Strike" }, active: { name: "Hunter's Mark" }, ult: { name: "Perfect Execution" }, passive: { name: "Eagle Eye" } } },
+    { id: "019", name: "Mi Fu", element: "Physical", img: "mifu.jpg", initiates: "Susceptibility", continues: "Vulnerability", skills: { basic: { name: "Claw Art" }, active: { name: "Defense Break" }, ult: { name: "Fatal Blow" }, passive: { name: "Weak Point" } } },
+    { id: "020", name: "Perlica", element: "Arts", img: "perlica.jpg", initiates: "Slow", continues: "AoE Damage", skills: { basic: { name: "Energy Orb" }, active: { name: "Spatial Distortion" }, ult: { name: "Temporal Collapse" }, passive: { name: "Director's Vision" } } },
+    { id: "021", name: "Pogranichnik", element: "Physical", img: "pogra.jpg", initiates: "Posture Break", continues: "None", skills: { basic: { name: "Heavy Axe" }, active: { name: "War Cry" }, ult: { name: "Earthquake" }, passive: { name: "Military Resistance" } } },
+    { id: "022", name: "Rossi", element: "Physical", img: "rossi.jpg", initiates: "Airborne", continues: "Heat", skills: { basic: { name: "Wolf Strike" }, active: { name: "Ascending Blow" }, ult: { name: "Final Hunt Dance" }, passive: { name: "Valley Leader" } } },
+    { id: "023", name: "Snowshine", element: "Cryo", img: "snowshine.jpg", initiates: "Cryo Infliction", continues: "Taunt", skills: { basic: { name: "Ice Spear" }, active: { name: "Glacial Shield" }, ult: { name: "Winter Wall" }, passive: { name: "Absolute Cold" } } },
+    { id: "024", name: "Tangtang", element: "Physical", img: "tangtang.jpg", initiates: "None", continues: "Toughness Break", skills: { basic: { name: "Smash" }, active: { name: "Destructive Spin" }, ult: { name: "Meteoric Impact" }, passive: { name: "Endless Energy" } } },
+    { id: "025", name: "Wulfgard", element: "Physical", img: "wulfgard.jpg", initiates: "Stun", continues: "None", skills: { basic: { name: "Savage Strike" }, active: { name: "Battle Howl" }, ult: { name: "Lupine Fury" }, passive: { name: "Survival Instinct" } } },
+    { id: "026", name: "Xaihi", element: "Arts", img: "xaihi.jpg", initiates: "Survival", continues: "None", skills: { basic: { name: "Guiding Light" }, active: { name: "Sacred Shield" }, ult: { name: "Purification" }, passive: { name: "Divine Grace" } } },
+    { id: "027", name: "Yvonne", element: "Cryo", img: "yvonne.jpg", initiates: "Cryo Infliction", continues: "Freeze", skills: { basic: { name: "Freezing Shot" }, active: { name: "Arctic Explosion" }, ult: { name: "Snowstorm" }, passive: { name: "Frost Focus" } } },
+    { id: "028", name: "Zhuang Fangyi", element: "Electric", img: "zhuang.jpg", initiates: "DoT Damage", continues: "Sunderblade", skills: { basic: { name: "Lightning Blade" }, active: { name: "Invocation" }, ult: { name: "Thunder Judgment" }, passive: { name: "Electric Conduction" } } }
+];
+
+function initDatabase() {
+    characters.forEach(p => {
+        p.status = {
+            level: 1, skill_1: 1, skill_2: 1, skill_3: 1,
+            weapon_id: "wpn_lg_01", weapon_level: 1, weapon_essence: 1, weapon_potential: 1,
+            // 4 distinct armor pieces
+            armor: {
+                head: { id: "set_none", level: 0 },
+                chest: { id: "set_none", level: 0 },
+                arms: { id: "set_none", level: 0 },
+                legs: { id: "set_none", level: 0 }
+            },
+            talents: [false, false, false, false, false, false]
+        };
+    });
+}
+initDatabase();
+
+window.onload = function() {
+    initSelects();
+    renderCharacters();
+    renderSquad();
+    attachValidation();
 };
 
-function t(texto) {
-    if (currentLang === 'en' && langDict.en[texto]) return langDict.en[texto];
-    return texto;
+function initSelects() {
+    const selWpn = document.getElementById("conf-weapon-id");
+    selWpn.innerHTML = "";
+    weaponsDB.forEach(w => selWpn.innerHTML += `<option value="${w.id}">${w.name} (${w.type})</option>`);
+    
+    const parts = ["head", "chest", "arms", "legs"];
+    parts.forEach(part => {
+        const sel = document.getElementById(`conf-armor-${part}`);
+        sel.innerHTML = "";
+        armorSetsDB.forEach(s => {
+            const label = s.id === "set_none" ? s.name : `${s.name} (${s.set_effect})`;
+            sel.innerHTML += `<option value="${s.id}">${label}</option>`;
+        });
+    });
 }
 
-function toggleLang() {
-    currentLang = currentLang === 'pt' ? 'en' : 'pt';
-    atualizarTextosEstaticos();
-    inicializarSelects();
-    renderizarPersonagens();
-    atualizarTelaEsquadrao();
+function attachValidation() {
+    const inputs = ['conf-level', 'conf-weapon-level'];
+    inputs.forEach(id => {
+        document.getElementById(id).addEventListener('blur', function() { this.value = clamp(this.value, 1, 90); });
+    });
 }
 
-function atualizarTextosEstaticos() {
-    document.getElementById("btn-lang").innerText = currentLang === 'pt' ? "🇺🇸 English" : "🇧🇷 Português";
+function renderCharacters() {
+    const grid = document.getElementById("character-grid");
+    const filter = document.getElementById("filter-element").value;
+    const search = document.getElementById("search-name").value.toLowerCase();
     
-    document.getElementById("text-formacao-h2").innerHTML = `${t("Formação")} (<span id="contador-esquadrao">${esquadrao.filter(p=>p!==null).length}</span>/4)`;
-    document.getElementById("text-arraste").innerText = t("Arraste os personagens. Clique em ⚙️ para configurar.");
-    document.getElementById("text-personagens-h2").innerText = t("Personagens");
-    document.getElementById("busca-nome").placeholder = t("Pesquisar por nome...");
-    document.getElementById("btn-limpar").innerText = t("Limpar Time");
-    document.getElementById("btn-reset-geral").innerText = t("Resetar Tudo");
-    document.getElementById("text-combo-h2").innerText = t("Simulação de Combo");
-    
-    document.getElementById("modal-titulo-sinergia").innerText = t("Sugestões de Times");
-    document.getElementById("text-modal-sinergia-desc").innerText = t("Escolha a formação que melhor se adapta à sua estratégia.");
-    
-    document.getElementById("label-config-titulo").innerText = t("Configuração:");
-    document.getElementById("label-nivel").innerText = t("Nível do Operador:");
-    document.getElementById("title-arma").innerText = t("⚔️ Armamento Equipado");
-    document.getElementById("label-arma-nivel").innerText = t("Nível");
-    document.getElementById("label-arma-essencia").innerText = t("Essência");
-    document.getElementById("label-arma-potencial").innerText = t("Potencial");
-    document.getElementById("title-set").innerText = t("🛡️ Set de Fábrica / Armadura");
-    document.getElementById("label-set-nivel").innerText = t("Nível do Set (Upgrade):");
-    document.getElementById("title-skills").innerText = t("🧬 Matriz de Capacidade (Skills)");
-    document.getElementById("label-skill-1").innerText = t("Ataque Básico");
-    document.getElementById("label-skill-2").innerText = t("Habilidade Ativa");
-    document.getElementById("label-skill-3").innerText = t("Ultimate / Combo");
-    document.getElementById("label-skill-4").innerText = t("Passiva / Talento");
-    
-    document.getElementById("btn-salvar-config").innerText = t("💾 Salvar Atributos");
-    document.getElementById("btn-reset-config").innerText = t("🔄 Resetar Padrão");
-}
-
-// =========================================================================
-// BANCOS DE DADOS GERAIS
-// =========================================================================
-const armasDB = [
-    { id: "wpn_001", nome: "Arma Inicial Padrão", raridade: 3, img: "wpn_basica.jpg" },
-    { id: "wpn_002", nome: "Lâmina de Talos", raridade: 4, img: "wpn_talos.jpg" },
-    { id: "wpn_003", nome: "Protetor do Vale (Rossi)", raridade: 6, img: "wpn_rossi.jpg" },
-    { id: "wpn_004", nome: "Vanguarda Endfield (Endmin)", raridade: 6, img: "wpn_endmin.jpg" },
-    { id: "wpn_005", nome: "Cetro Gravitacional (Gilberta)", raridade: 6, img: "wpn_gilberta.jpg" },
-    { id: "wpn_006", nome: "Lança-Chamas Tático (Ember)", raridade: 5, img: "wpn_ember.jpg" },
-    { id: "wpn_007", nome: "Espada Dupla Mercenária", raridade: 5, img: "wpn_mercenaria.jpg" },
-    { id: "wpn_008", nome: "Orbe de Originium Puro", raridade: 6, img: "wpn_orbe.jpg" },
-    { id: "wpn_009", nome: "Machado Pesado", raridade: 5, img: "wpn_machado.jpg" },
-    { id: "wpn_010", nome: "Sunderblade Elétrica", raridade: 6, img: "wpn_sunder.jpg" }
-];
-
-const setsDB = [
-    { id: "set_000", nome: "Nenhum Set Equipado" },
-    { id: "set_001", nome: "Conjunto do Mercenário (Foco em Dano Físico)" },
-    { id: "set_002", nome: "Conjunto do Ponto de Ignição (Dano Heat)" },
-    { id: "set_003", nome: "Conjunto Quebrador de Escudos (Toughness Dmg)" },
-    { id: "set_004", nome: "Conjunto do Campo de Artes (Cura e Suporte)" },
-    { id: "set_005", nome: "Conjunto da Tempestade (Dano Elétrico)" },
-    { id: "set_006", nome: "Conjunto Zero Absoluto (Dano Cryo)" },
-    { id: "set_007", nome: "Conjunto Anomalia Gravitacional (Nature)" },
-    { id: "set_008", nome: "Conjunto Linha de Frente (Defesa/Taunt)" }
-];
-
-const personagens = [
-    { id: "001", nome: "Akekuri", tipo_dano: "Físico", img: "akekuri.jpg", inicia: "Nenhum", continua: "Stun", skills_nomes: { basico: "Corte Rápido", ativa: "Investida Tática", ult: "Golpe Esmagador", passiva: "Foco de Batalha" } },
-    { id: "002", nome: "Alesh", tipo_dano: "Físico", img: "alesh.jpg", inicia: "Nenhum", continua: "Quebra de Toughness", skills_nomes: { basico: "Tiro Preciso", ativa: "Disparo Perfurante", ult: "Chuva de Balas", passiva: "Mira Óptica" } },
-    { id: "003", nome: "Antal", tipo_dano: "Nature", img: "antal.jpg", inicia: "Buff", continua: "Nenhum", skills_nomes: { basico: "Disparo de Esporos", ativa: "Semente Revitalizante", ult: "Campo de Florescimento", passiva: "Simbiose" } },
-    { id: "004", nome: "Arclight", tipo_dano: "Electric", img: "arclight.jpg", inicia: "Paralisia", continua: "Nenhum", skills_nomes: { basico: "Faísca", ativa: "Choque em Cadeia", ult: "Tempestade Magnética", passiva: "Bateria Viva" } },
-    { id: "005", nome: "Ardelia", tipo_dano: "Nature", img: "ardelia.jpg", inicia: "Vulnerabilidade Elemental", continua: "Nenhum", skills_nomes: { basico: "Raio Foliar", ativa: "Vinhas Cortantes", ult: "Prisão de Espinheiros", passiva: "Toque da Natureza" } },
-    { id: "006", nome: "Avywenna", tipo_dano: "Físico", img: "avywenna.jpg", inicia: "Nenhum", continua: "Quebra de Toughness", skills_nomes: { basico: "Ataque Duplo", ativa: "Fúria Cortante", ult: "Turbilhão de Lâminas", passiva: "Instinto Mercenário" } },
-    { id: "007", nome: "Camille", tipo_dano: "Heat", img: "camille.jpg", inicia: "Inflição Térmica", continua: "Vulnerabilidade", skills_nomes: { basico: "Tiro Quente", ativa: "Granada de Fósforo", ult: "Zona de Ignição", passiva: "Fogo Persistente" } },
-    { id: "008", nome: "Catcher", tipo_dano: "Físico", img: "catcher.jpg", inicia: "Taunt", continua: "Nenhum", skills_nomes: { basico: "Golpe de Escudo", ativa: "Provocação Tática", ult: "Postura Intransponível", passiva: "Vanguarda Sólida" } },
-    { id: "009", nome: "Chen Qianyu", tipo_dano: "Físico", img: "chen.jpg", inicia: "Knockback", continua: "Nenhum", skills_nomes: { basico: "Punho do Dragão", ativa: "Palma Repulsora", ult: "Fúria de Lungmen", passiva: "Arte Ancestral" } },
-    { id: "010", nome: "Da Pan", tipo_dano: "Físico", img: "dapan.jpg", inicia: "Crush", continua: "Stun", skills_nomes: { basico: "Balanço Pesado", ativa: "Golpe Sísmico", ult: "Esmagamento Total", passiva: "Força Bruta" } },
-    { id: "011", nome: "Ember", tipo_dano: "Heat", img: "ember.jpg", inicia: "Inflição Térmica", continua: "Nenhum", skills_nomes: { basico: "Lança-Chamas", ativa: "Barreira de Fogo", ult: "Explosão Térmica", passiva: "Ignição Primordial" } },
-    { id: "012", nome: "Endministrator", tipo_dano: "Físico", img: "endmin.jpg", inicia: "Quebra de Toughness / Crush", continua: "Qualquer", skills_nomes: { basico: "Corte Modular", ativa: "Feixe Esmagador", ult: "Sobrecarga de Contingência", passiva: "Sinergia de Talos" } },
-    { id: "013", nome: "Estella", tipo_dano: "Físico", img: "estella.jpg", inicia: "Nenhum", continua: "Quebra de Toughness", skills_nomes: { basico: "Lâmina Ágil", ativa: "Corte Duplo", ult: "Dança de Espadas", passiva: "Reflexo de Combate" } },
-    { id: "014", nome: "Fluorite", tipo_dano: "Originium Arts", img: "fluorite.jpg", inicia: "Lentidão", continua: "Nenhum", skills_nomes: { basico: "Projétil de Cristal", ativa: "Prisão Mineral", ult: "Ressonância", passiva: "Brilho Retardante" } },
-    { id: "015", nome: "Gilberta", tipo_dano: "Nature", img: "gilberta.jpg", inicia: "Airborne", continua: "Quebra de Toughness", skills_nomes: { basico: "Feixe Gravitacional", ativa: "Inversão de Peso", ult: "Campo Anti-Gravidade", passiva: "Herança de Angelina" } },
-    { id: "016", nome: "Laevatain", tipo_dano: "Heat", img: "laevatain.jpg", inicia: "Stagger / Heat", continua: "Vulnerabilidade Térmica", skills_nomes: { basico: "Ataque Flamejante", ativa: "Golpe Calórico", ult: "Erupção de Lâmina", passiva: "Calor Implacável" } },
-    { id: "017", nome: "Last Rite", tipo_dano: "Cryo", img: "lastrite.jpg", inicia: "Congelamento", continua: "Inflição Cryo", skills_nomes: { basico: "Foice Gélida", ativa: "Nevasca Súbita", ult: "Zero Absoluto", passiva: "Abraço do Inverno" } },
-    { id: "018", nome: "Lifeng", tipo_dano: "Físico", img: "lifeng.jpg", inicia: "Suscetibilidade Física", continua: "Nenhum", skills_nomes: { basico: "Golpe Veloz", ativa: "Marca do Caçador", ult: "Execução Perfeita", passiva: "Olho de Águia" } },
-    { id: "019", nome: "Mi Fu", tipo_dano: "Físico", img: "mifu.jpg", inicia: "Suscetibilidade Física", continua: "Vulnerabilidade", skills_nomes: { basico: "Arte da Garra", ativa: "Quebra de Defesa", ult: "Golpe Fatal", passiva: "Ponto Fraco" } },
-    { id: "020", nome: "Perlica", tipo_dano: "Originium Arts", img: "perlica.jpg", inicia: "Slow", continua: "Dano em Área", skills_nomes: { basico: "Orbe de Energia", ativa: "Distorção Espacial", ult: "Colapso Temporal", passiva: "Visão da Diretora" } },
-    { id: "021", nome: "Pogranichnik", tipo_dano: "Físico", img: "pogra.jpg", inicia: "Quebra de Postura", continua: "Nenhum", skills_nomes: { basico: "Machado Pesado", ativa: "Grito de Guerra", ult: "Terremoto", passiva: "Resistência Militar" } },
-    { id: "022", nome: "Rossi", tipo_dano: "Físico", img: "rossi.jpg", inicia: "Airborne / Vulnerabilidade", continua: "Inflição Heat/Arts", skills_nomes: { basico: "Ataque do Lobo", ativa: "Golpe Ascendente", ult: "Dança da Caçada Final", passiva: "Líder do Vale IV" } },
-    { id: "023", nome: "Snowshine", tipo_dano: "Cryo", img: "snowshine.jpg", inicia: "Inflição Cryo", continua: "Taunt", skills_nomes: { basico: "Lança de Gelo", ativa: "Escudo Glacial", ult: "Muralha de Inverno", passiva: "Frieza Absoluta" } },
-    { id: "024", nome: "Tangtang", tipo_dano: "Físico", img: "tangtang.jpg", inicia: "Nenhum", continua: "Quebra de Toughness", skills_nomes: { basico: "Pancada", ativa: "Giro Destrutivo", ult: "Impacto Meteórico", passiva: "Energia Inesgotável" } },
-    { id: "025", nome: "Wulfgard", tipo_dano: "Físico", img: "wulfgard.jpg", inicia: "Stun / Sangramento", continua: "Nenhum", skills_nomes: { basico: "Golpe Selvagem", ativa: "Uivo de Batalha", ult: "Fúria Lupina", passiva: "Instinto de Sobrevivência" } },
-    { id: "026", nome: "Xaihi", tipo_dano: "Originium Arts", img: "xaihi.jpg", inicia: "Buff de Sobrevivência", continua: "Nenhum", skills_nomes: { basico: "Luz Guia", ativa: "Escudo Sagrado", ult: "Purificação Absoluta", passiva: "Graça Divina" } },
-    { id: "027", nome: "Yvonne", tipo_dano: "Cryo", img: "yvonne.jpg", inicia: "Inflição Cryo", continua: "Congelamento", skills_nomes: { basico: "Tiro Congelante", ativa: "Explosão Ártica", ult: "Tempestade de Neve", passiva: "Foco Gélido" } },
-    { id: "028", nome: "Zhuang Fangyi", tipo_dano: "Electric", img: "zhuang.jpg", inicia: "Dano Contínuo", continua: "Setup de Sunderblade", skills_nomes: { basico: "Lâmina Relâmpago", ativa: "Invocação", ult: "Julgamento do Trovão", passiva: "Condução Elétrica" } }
-];
-
-personagens.forEach(p => {
-    p.status = {
-        nivel: 1, skill_1: 1, skill_2: 1, skill_3: 1, skill_4: 1,
-        arma_id: "wpn_001", arma_nivel: 1, arma_essencia: 1, arma_potencial: 1,
-        armadura_id: "set_000", armadura_nivel: 0
-    };
-});
-
-let esquadrao = [null, null, null, null];
-let timesGeradosParaModal = [];
-let origemConfig = null; 
-let identificadorConfig = null; 
-
-// =========================================================================
-// RENDERIZAÇÃO DA LISTA E DRAG & DROP
-// =========================================================================
-
-function renderizarPersonagens() {
-    const grid = document.getElementById("grid-personagens");
-    const filtroElemento = document.getElementById("filtro-elemento").value;
-    const termoBusca = document.getElementById("busca-nome").value.toLowerCase();
-    
-    document.getElementById("filtro-elemento").options[0].text = t("Todos Elementos");
     grid.innerHTML = "";
-
-    personagens.forEach(p => {
-        if ((filtroElemento === "Todos" || p.tipo_dano === filtroElemento) && p.nome.toLowerCase().includes(termoBusca)) {
+    characters.forEach(p => {
+        if ((filter === "All" || p.element === filter) && p.name.toLowerCase().includes(search)) {
+            // Origin explicitly sent as 'roster'
             grid.innerHTML += `
-                <div class="char-card" draggable="true" ondragstart="iniciarArraste(event, '${p.id}')">
-                    <div class="btn-config" style="top: 5px; right: 5px; left: auto; bottom: auto;" onclick="abrirModalConfig('lista', '${p.id}')" title="Configurar Personagem">⚙️</div>
+                <div class="char-card" draggable="true" ondragstart="drag(event, 'roster', '${p.id}')">
+                    <div class="btn-gear" onmousedown="event.stopPropagation()" onclick="openSettings('list', '${p.id}')">⚙️</div>
                     <div class="char-img" style="background-image: url('imagens/${p.img}');"></div>
                     <div class="char-info">
-                        <strong>${p.nome}</strong>
-                        <div class="char-element">${t(p.tipo_dano)} • Nv.${p.status.nivel}</div>
+                        <strong>${p.name}</strong>
+                        <span>${p.element} • LVL ${p.status.level}</span>
                     </div>
-                    <button class="btn-sinergia" onclick="abrirModalSinergia('${p.id}')">${t("Sugerir Times")}</button>
+                    <button class="btn-suggestion" onmousedown="event.stopPropagation()" onclick="openSynergyModal('${p.id}')">Tactics</button>
                 </div>
             `;
         }
     });
 }
 
-function iniciarArraste(ev, id) { ev.dataTransfer.setData("text", id); }
-function permitirSoltar(ev) { ev.preventDefault(); ev.currentTarget.classList.add("dragover"); }
-function sairSoltar(ev) { ev.currentTarget.classList.remove("dragover"); }
-
-function soltarNoSlot(ev, index) {
-    ev.preventDefault();
-    ev.currentTarget.classList.remove("dragover");
-    const id = ev.dataTransfer.getData("text");
-    
-    if (id) {
-        const charOriginal = personagens.find(p => p.id === id);
-        const posicaoAntiga = esquadrao.findIndex(p => p && p.id === id);
-        if (posicaoAntiga !== -1) esquadrao[posicaoAntiga] = null;
-        esquadrao[index] = charOriginal;
-        atualizarTelaEsquadrao();
-    }
-}
-
-function removerDoEsquadrao(index) { esquadrao[index] = null; atualizarTelaEsquadrao(); }
-function limparEsquadrao() { esquadrao = [null, null, null, null]; atualizarTelaEsquadrao(); }
-
-function atualizarTelaEsquadrao() {
-    const slots = document.getElementById("slots-esquadrao");
-    document.getElementById("contador-esquadrao").innerText = esquadrao.filter(p => p !== null).length;
+function renderSquad() {
+    const slots = document.getElementById("squad-slots");
+    document.getElementById("squad-counter").innerText = squad.filter(p => p !== null).length;
     slots.innerHTML = "";
     
     for(let i = 0; i < 4; i++) {
-        if (esquadrao[i]) {
-            const char = esquadrao[i];
+        if (squad[i]) {
+            const c = squad[i];
+            // Origin explicitly sent as 'squad' to allow internal reordering
             slots.innerHTML += `
-                <div class="slot" draggable="true" ondragstart="iniciarArraste(event, '${char.id}')" ondrop="soltarNoSlot(event, ${i})" ondragover="permitirSoltar(event)" ondragleave="sairSoltar(event)" style="border-color: #4facfe; background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.9)), url('imagens/${char.img}'); color: white; cursor: grab;">
-                    <div class="slot-remover" onclick="removerDoEsquadrao(${i})">X</div>
-                    <div class="btn-config" onclick="abrirModalConfig('esquadrao', ${i})" title="Configurar Personagem">⚙️</div>
-                    <strong style="z-index: 2; margin-top: auto;">${char.nome}</strong>
-                    <span style="font-size:10px; z-index:2; color:#4facfe; margin-bottom: 5px;">Nv. ${char.status.nivel}</span>
+                <div class="slot slot-filled" draggable="true" ondragstart="drag(event, 'squad', '${i}')" ondrop="drop(event, ${i})" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)" style="background-image: linear-gradient(to top, rgba(0,0,0,0.9), transparent), url('imagens/${c.img}');">
+                    <button class="btn-remove" onmousedown="event.stopPropagation()" onclick="removeFromSquad(${i})">X</button>
+                    <div class="btn-gear" onmousedown="event.stopPropagation()" onclick="openSettings('squad', ${i})">⚙️</div>
+                    <strong>${c.name}</strong>
+                    <span>LVL ${c.status.level}</span>
                 </div>
             `;
         } else {
-            slots.innerHTML += `<div class="slot" ondrop="soltarNoSlot(event, ${i})" ondragover="permitirSoltar(event)" ondragleave="sairSoltar(event)">${t("Vazio")}<br>${t("(Arraste)")}</div>`;
+            slots.innerHTML += `<div class="slot" ondrop="drop(event, ${i})" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)">STANDBY</div>`;
         }
     }
-    calcularCombo();
+    calcCombo();
 }
 
-// =========================================================================
-// SISTEMA DE CONFIGURAÇÃO (MODAL E RESET)
-// =========================================================================
+function drag(ev, origin, val) { 
+    ev.dataTransfer.setData("origin", origin);
+    ev.dataTransfer.setData("val", val);
+}
+function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add("dragover"); }
+function leaveDrop(ev) { ev.currentTarget.classList.remove("dragover"); }
+function drop(ev, idx) {
+    ev.preventDefault(); ev.currentTarget.classList.remove("dragover");
+    
+    const origin = ev.dataTransfer.getData("origin");
+    const val = ev.dataTransfer.getData("val");
+    
+    if (!origin) return;
 
-function inicializarSelects() {
-    const selectArma = document.getElementById("conf-arma-id");
-    const selectArmadura = document.getElementById("conf-armadura-id");
-    selectArma.innerHTML = ""; selectArmadura.innerHTML = "";
-    armasDB.forEach(arma => { selectArma.innerHTML += `<option value="${arma.id}">${t(arma.nome)} (⭐${arma.raridade})</option>`; });
-    setsDB.forEach(set => { selectArmadura.innerHTML += `<option value="${set.id}">${t(set.nome)}</option>`; });
+    if (origin === 'roster') {
+        const char = characters.find(p => p.id === val);
+        const oldPos = squad.findIndex(p => p && p.id === val);
+        if (oldPos !== -1) squad[oldPos] = null;
+        squad[idx] = char;
+    } else if (origin === 'squad') {
+        const fromIdx = parseInt(val);
+        const temp = squad[idx];
+        squad[idx] = squad[fromIdx];
+        squad[fromIdx] = temp;
+    }
+    renderSquad();
 }
 
-function atualizarPreviewArma() {
-    const idArmaSelecionada = document.getElementById("conf-arma-id").value;
-    const arma = armasDB.find(a => a.id === idArmaSelecionada);
-    if(arma) document.getElementById("preview-arma").style.backgroundImage = `url('imagens/${arma.img}')`;
+function removeFromSquad(idx) { squad[idx] = null; renderSquad(); }
+function clearSquad() { squad = [null, null, null, null]; renderSquad(); }
+
+function updateWeaponPreview() {
+    const id = document.getElementById("conf-weapon-id").value;
+    const wpn = weaponsDB.find(w => w.id === id);
+    if(wpn) document.getElementById("preview-weapon").style.backgroundImage = `url('imagens/${wpn.img}')`;
 }
 
-function abrirModalConfig(origem, idOuIndex) {
-    origemConfig = origem;
-    identificadorConfig = idOuIndex;
+function openSettings(origin, idVal) {
+    activeOrigin = origin; 
+    activeId = idVal;
+    
+    let target = origin === 'list' ? characters.find(p => p.id === idVal) : squad[idVal];
+    if (!target) return;
 
-    let charAlvo = origem === 'lista' ? personagens.find(p => p.id === idOuIndex) : esquadrao[idOuIndex];
-    if (!charAlvo) return;
+    document.getElementById("config-avatar").style.backgroundImage = `url('imagens/${target.img}')`;
+    document.getElementById("config-char-name").innerText = target.name;
+    document.getElementById("config-origin-badge").innerText = origin === 'list' ? "BASE DB" : "SQUAD CLONE";
+    
+    document.getElementById("conf-level").value = target.status.level;
+    document.getElementById("name-skill-1").innerText = target.skills.basic.name;
+    document.getElementById("name-skill-2").innerText = target.skills.active.name;
+    document.getElementById("name-skill-3").innerText = target.skills.ult.name;
+    document.getElementById("name-skill-4").innerText = target.skills.passive.name;
+    
+    document.getElementById("conf-skill-1").value = target.status.skill_1;
+    document.getElementById("conf-skill-2").value = target.status.skill_2;
+    document.getElementById("conf-skill-3").value = target.status.skill_3;
+    
+    document.getElementById("conf-weapon-id").value = target.status.weapon_id;
+    document.getElementById("conf-weapon-level").value = target.status.weapon_level;
+    document.getElementById("conf-weapon-essence").value = target.status.weapon_essence;
+    document.getElementById("conf-weapon-potential").value = target.status.weapon_potential;
+    updateWeaponPreview();
+    
+    const parts = ["head", "chest", "arms", "legs"];
+    parts.forEach(part => {
+        document.getElementById(`conf-armor-${part}`).value = target.status.armor[part].id;
+        document.getElementById(`conf-lvl-${part}`).value = target.status.armor[part].level;
+    });
 
-    document.getElementById("config-avatar").style.backgroundImage = `url('imagens/${charAlvo.img}')`;
-    document.getElementById("config-nome-personagem").innerText = charAlvo.nome + (origem === 'lista' ? ` (${t("Ficha Base")})` : ` (${t("Esquadrão")})`);
-    
-    document.getElementById("conf-nivel").value = charAlvo.status.nivel;
-    document.getElementById("nome-skill-1").innerText = charAlvo.skills_nomes.basico;
-    document.getElementById("nome-skill-2").innerText = charAlvo.skills_nomes.ativa;
-    document.getElementById("nome-skill-3").innerText = charAlvo.skills_nomes.ult;
-    document.getElementById("nome-skill-4").innerText = charAlvo.skills_nomes.passiva;
-    document.getElementById("conf-skill-1").value = charAlvo.status.skill_1;
-    document.getElementById("conf-skill-2").value = charAlvo.status.skill_2;
-    document.getElementById("conf-skill-3").value = charAlvo.status.skill_3;
-    document.getElementById("conf-skill-4").value = charAlvo.status.skill_4;
-    
-    document.getElementById("conf-arma-id").value = charAlvo.status.arma_id;
-    document.getElementById("conf-arma-nivel").value = charAlvo.status.arma_nivel;
-    document.getElementById("conf-arma-essencia").value = charAlvo.status.arma_essencia;
-    document.getElementById("conf-arma-potencial").value = charAlvo.status.arma_potencial;
-    atualizarPreviewArma();
-    
-    document.getElementById("conf-armadura-id").value = charAlvo.status.armadura_id;
-    document.getElementById("conf-armadura-nivel").value = charAlvo.status.armadura_nivel;
+    const tCont = document.getElementById("talent-nodes-container");
+    tCont.innerHTML = "";
+    for(let i=0; i<6; i++) {
+        let isActive = target.status.talents[i] ? "active" : "";
+        tCont.innerHTML += `<div class="talent-box ${isActive}" onclick="toggleTalent(this, ${i})">${i+1}</div>`;
+    }
 
     document.getElementById("modal-config").style.display = "flex";
 }
 
-function resetarTudo() {
-    let aviso = currentLang === 'pt' ? "Tem certeza que deseja resetar as configurações de TODOS os personagens para o nível 1?" : t("AvisoResetTudo");
-    if(confirm(aviso)) {
-        personagens.forEach(p => {
-            p.status = {
-                nivel: 1, skill_1: 1, skill_2: 1, skill_3: 1, skill_4: 1,
-                arma_id: "wpn_001", arma_nivel: 1, arma_essencia: 1, arma_potencial: 1,
-                armadura_id: "set_000", armadura_nivel: 0
-            };
-        });
-        renderizarPersonagens();
-        atualizarTelaEsquadrao();
-    }
+function toggleTalent(element, index) {
+    element.classList.toggle("active");
 }
 
-function resetarConfiguracao() {
-    document.getElementById("conf-nivel").value = 1;
+function saveConfig() {
+    let target = activeOrigin === 'list' ? characters.find(p => p.id === activeId) : squad[activeId];
+    
+    target.status.level = clamp(document.getElementById("conf-level").value, 1, 90);
+    target.status.skill_1 = clamp(document.getElementById("conf-skill-1").value, 1, 7);
+    target.status.skill_2 = clamp(document.getElementById("conf-skill-2").value, 1, 7);
+    target.status.skill_3 = clamp(document.getElementById("conf-skill-3").value, 1, 7);
+    
+    target.status.weapon_id = document.getElementById("conf-weapon-id").value;
+    target.status.weapon_level = clamp(document.getElementById("conf-weapon-level").value, 1, 90);
+    target.status.weapon_essence = clamp(document.getElementById("conf-weapon-essence").value, 1, 5);
+    target.status.weapon_potential = clamp(document.getElementById("conf-weapon-potential").value, 1, 5);
+    
+    const parts = ["head", "chest", "arms", "legs"];
+    parts.forEach(part => {
+        target.status.armor[part].id = document.getElementById(`conf-armor-${part}`).value;
+        target.status.armor[part].level = clamp(document.getElementById(`conf-lvl-${part}`).value, 0, 20);
+    });
+
+    const talentBoxes = document.querySelectorAll(".talent-box");
+    talentBoxes.forEach((box, i) => { target.status.talents[i] = box.classList.contains("active"); });
+
+    renderCharacters(); renderSquad(); closeConfigModal();
+}
+
+function resetConfig() {
+    document.getElementById("conf-level").value = 1;
     document.getElementById("conf-skill-1").value = 1;
     document.getElementById("conf-skill-2").value = 1;
     document.getElementById("conf-skill-3").value = 1;
-    document.getElementById("conf-skill-4").value = 1;
-    document.getElementById("conf-arma-id").value = "wpn_001";
-    document.getElementById("conf-arma-nivel").value = 1;
-    document.getElementById("conf-arma-essencia").value = 1;
-    document.getElementById("conf-arma-potencial").value = 1;
-    document.getElementById("conf-armadura-id").value = "set_000";
-    document.getElementById("conf-armadura-nivel").value = 0;
-    atualizarPreviewArma();
-    salvarConfiguracao();
+    document.getElementById("conf-weapon-id").value = "wpn_lg_01";
+    document.getElementById("conf-weapon-level").value = 1;
+    document.getElementById("conf-weapon-essence").value = 1;
+    document.getElementById("conf-weapon-potential").value = 1;
+    
+    const parts = ["head", "chest", "arms", "legs"];
+    parts.forEach(part => {
+        document.getElementById(`conf-armor-${part}`).value = "set_none";
+        document.getElementById(`conf-lvl-${part}`).value = 0;
+    });
+
+    document.querySelectorAll(".talent-box").forEach(b => b.classList.remove("active"));
+    updateWeaponPreview(); saveConfig();
 }
 
-function salvarConfiguracao() {
-    let statusAtualizado = {
-        nivel: parseInt(document.getElementById("conf-nivel").value),
-        skill_1: parseInt(document.getElementById("conf-skill-1").value),
-        skill_2: parseInt(document.getElementById("conf-skill-2").value),
-        skill_3: parseInt(document.getElementById("conf-skill-3").value),
-        skill_4: parseInt(document.getElementById("conf-skill-4").value),
-        arma_id: document.getElementById("conf-arma-id").value,
-        arma_nivel: parseInt(document.getElementById("conf-arma-nivel").value),
-        arma_essencia: parseInt(document.getElementById("conf-arma-essencia").value),
-        arma_potencial: parseInt(document.getElementById("conf-arma-potencial").value),
-        armadura_id: document.getElementById("conf-armadura-id").value,
-        armadura_nivel: parseInt(document.getElementById("conf-armadura-nivel").value)
-    };
+function openConfirmModal() { document.getElementById("modal-confirm").style.display = "flex"; }
+function closeConfirmModal() { document.getElementById("modal-confirm").style.display = "none"; }
+function closeConfigModal() { document.getElementById("modal-config").style.display = "none"; }
 
-    let charAlvo = origemConfig === 'lista' ? personagens.find(p => p.id === identificadorConfig) : esquadrao[identificadorConfig];
-    charAlvo.status = statusAtualizado;
-
-    renderizarPersonagens(); 
-    atualizarTelaEsquadrao(); 
-    fecharModalConfig();
+function executeResetAll() { 
+    initDatabase(); 
+    clearSquad(); 
+    renderCharacters(); 
+    closeConfirmModal(); 
 }
 
-function fecharModalConfig() { document.getElementById("modal-config").style.display = "none"; }
-
-// =========================================================================
-// TRILHA DE COMBOS E ALGORITMO DE SUGESTÃO
-// =========================================================================
-
-function calcularCombo() {
-    const trilha = document.getElementById("trilha-combo");
-    trilha.innerHTML = "";
-    const timeAtivo = esquadrao.filter(p => p !== null);
-
-    if (timeAtivo.length === 0) {
-        trilha.innerHTML = `<p class="instrucao-texto">${t("Adicione personagens ao esquadrão para ver a lógica de combos.")}</p>`;
-        return;
+function calcCombo() {
+    const track = document.getElementById("combo-track");
+    track.innerHTML = "";
+    const active = squad.filter(p => p !== null);
+    if (active.length === 0) {
+        track.innerHTML = `<p class="sub-text">Deploy operators to evaluate tactical sequence.</p>`; return;
     }
-
-    timeAtivo.forEach((char, index) => {
-        trilha.innerHTML += `
-            <div class="combo-step">
-                <span>${char.nome} ${t("precisa:")}</span>
-                <div class="mecanica" style="color: #ff4757;">${t(char.continua)}</div>
-                <hr style="border: 1px solid #2a3f54;">
-                <span>${t("e então aplica:")}</span>
-                <div class="mecanica" style="color: #4facfe;">${t(char.inicia)}</div>
+    active.forEach((c, i) => {
+        track.innerHTML += `
+            <div class="combo-node">
+                <span>Requires</span><div class="mechanic" style="color:var(--danger-red)">${c.continues}</div>
+                <hr style="border: 1px solid var(--border-dim); margin: 8px 0;">
+                <span>Applies</span><div class="mechanic">${c.initiates}</div>
             </div>
         `;
-        if (index < timeAtivo.length - 1) { trilha.innerHTML += `<div class="seta">➞</div>`; }
+        if (i < active.length - 1) track.innerHTML += `<div class="combo-arrow">➞</div>`;
     });
 }
 
-function abrirModalSinergia(idPrincipal) {
-    const p = personagens.find(char => char.id === idPrincipal);
-    document.getElementById("modal-titulo-sinergia").innerText = `${t("Melhores Formações para")} ${p.nome}`;
-    timesGeradosParaModal = [];
-
-    function completarTime(timeAtual) {
-        let novoTime = [...timeAtual];
-        let suportesEDefensores = personagens.filter(char => !novoTime.some(nc => nc.id === char.id) && (char.inicia.includes("Buff") || char.inicia.includes("Taunt") || char.inicia.includes("Sobrevivência") || char.inicia.includes("Cura")));
-        let qualquerOutro = personagens.filter(char => !novoTime.some(nc => nc.id === char.id));
-
-        for (let sup of suportesEDefensores) { if (novoTime.length < 4) novoTime.push(sup); }
-        for (let out of qualquerOutro) { if (novoTime.length < 4) novoTime.push(out); }
-        return novoTime;
-    }
-
-    let time1 = [p];
-    let parceirosCombo = personagens.filter(char => char.id !== p.id && ((char.continua !== "Nenhum" && p.inicia.includes(char.continua)) || (p.continua !== "Nenhum" && char.inicia.includes(p.continua))));
-    parceirosCombo.forEach(parceiro => { if (time1.length < 4) time1.push(parceiro); });
-    time1 = completarTime(time1);
-    timesGeradosParaModal.push({ titulo: t("Estratégia: Sinergia de Combo"), time: time1 });
-
-    let time2 = [p];
-    let parceirosElementais = personagens.filter(char => char.id !== p.id && char.tipo_dano === p.tipo_dano);
-    if (p.tipo_dano === "Físico") {
-        parceirosElementais = personagens.filter(char => char.id !== p.id && char.tipo_dano === "Físico" && (char.inicia.includes("Suscetibilidade") || char.inicia.includes("Vulnerabilidade") || char.continua.includes("Vulnerabilidade")));
-    }
-    parceirosElementais.forEach(parceiro => { if (time2.length < 4) time2.push(parceiro); });
-    time2 = completarTime(time2);
-    timesGeradosParaModal.push({ titulo: `${t("Estratégia: Foco Elemento")} (${t(p.tipo_dano)})`, time: time2 });
-
-    let time3 = [p];
-    let parceirosControle = personagens.filter(char => char.id !== p.id && (char.inicia.includes("Stun") || char.inicia.includes("Airborne") || char.inicia.includes("Slow") || char.inicia.includes("Congelamento") || char.inicia.includes("Paralisia")));
-    parceirosControle.forEach(parceiro => { if (time3.length < 4 && !time2.some(t2 => t2.id === parceiro.id)) time3.push(parceiro); });
-    time3 = completarTime(time3);
-    timesGeradosParaModal.push({ titulo: t("Estratégia: Controle de Grupo Absoluto"), time: time3 });
-
-    desenharModalSinergia();
+function openSynergyModal(id) {
+    const p = characters.find(c => c.id === id);
+    document.querySelector("#modal-synergy h2").innerText = `Tactics for ${p.name}`;
+    const cont = document.getElementById("suggested-teams-container");
+    cont.innerHTML = "";
+    
+    let t1 = characters.filter(c => c.id !== p.id && (c.element === p.element || c.initiates === p.continues)).slice(0,3);
+    t1.unshift(p);
+    
+    let html = `<div class="team-card"><h3>Synergy Link Alpha</h3><div class="team-roster">`;
+    t1.forEach(c => html += `<div class="mini-slot" style="background-image: linear-gradient(to top, rgba(0,0,0,0.9), transparent), url('imagens/${c.img}');">${c.name}</div>`);
+    html += `</div><button class="btn-primary" onclick="applyTeam('${t1.map(x=>x.id).join(',')}')">Deploy</button></div>`;
+    
+    cont.innerHTML = html;
+    document.getElementById("modal-synergy").style.display = "flex";
 }
 
-function desenharModalSinergia() {
-    const container = document.getElementById("container-times-sugeridos");
-    container.innerHTML = "";
-
-    timesGeradosParaModal.forEach((opcao, index) => {
-        let slotsHtml = "";
-        opcao.time.forEach(char => {
-            slotsHtml += `<div class="modal-slot-mini" style="background-image: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.2)), url('imagens/${char.img}'); color: white;">${char.nome}</div>`;
-        });
-
-        container.innerHTML += `
-            <div class="linha-time">
-                <h3>${opcao.titulo}</h3>
-                <div class="modal-slots">${slotsHtml}</div>
-                <button class="btn-aplicar-time" onclick="aplicarTimeDoModal(${index})">${t("Substituir Esquadrão")}</button>
-            </div>
-        `;
-    });
-    document.getElementById("modal-sinergia").style.display = "flex";
+function closeSynergyModal() { document.getElementById("modal-synergy").style.display = "none"; }
+function applyTeam(idList) {
+    const ids = idList.split(',');
+    squad = ids.map(id => characters.find(c => c.id === id));
+    while(squad.length < 4) squad.push(null);
+    renderSquad(); closeSynergyModal();
 }
 
-function fecharModalSinergia() { document.getElementById("modal-sinergia").style.display = "none"; }
-
-function aplicarTimeDoModal(indexDoTime) {
-    esquadrao = timesGeradosParaModal[indexDoTime].time.map(charOriginal => charOriginal);
-    while (esquadrao.length < 4) esquadrao.push(null);
-    atualizarTelaEsquadrao();
-    fecharModalSinergia();
-}
-
-// =========================================================================
-// INICIALIZAÇÃO
-// =========================================================================
-
-window.onload = function() {
-    atualizarTextosEstaticos();
-    inicializarSelects();
-    renderizarPersonagens();
-    atualizarTelaEsquadrao();
-    document.getElementById("conf-arma-id").addEventListener("change", atualizarPreviewArma);
-};
-
-window.onclick = function(event) {
-    if (event.target === document.getElementById("modal-config")) fecharModalConfig();
-    if (event.target === document.getElementById("modal-sinergia")) fecharModalSinergia();
+window.onclick = function(e) {
+    if (e.target.classList.contains('modal')) e.target.style.display = "none";
 };
