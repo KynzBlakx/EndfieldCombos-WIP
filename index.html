@@ -4,18 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Endfield Tactical Simulator</title>
-    <link rel="icon" type="image/png" href="imagens/favicon.png">
+    <link rel="icon" type="image/png" href="imagens/Operators/favicon.png">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <main class="main-layout">
-        <!-- Roster Panel (Esquerda) -->
+        <!-- Roster Panel (Left Panel - Absolute Top) -->
         <aside class="roster-panel">
             <div class="panel-header">
                 <h2>Database System</h2>
                 <div class="roster-tabs mt-10">
                     <button class="tab-btn active" id="tab-btn-operators" onclick="switchTab('operators')">Operators</button>
                     <button class="tab-btn" id="tab-btn-weapons" onclick="switchTab('weapons')">Weapons</button>
+                    <button class="tab-btn" id="tab-btn-gear" onclick="switchTab('gear')">Gear</button>
                 </div>
                 <div class="search-filters mt-10">
                     <input type="text" id="search-name" class="tech-input" placeholder="Search database..." onkeyup="renderRoster()">
@@ -38,8 +39,9 @@
             <div class="character-grid" id="character-grid"></div>
         </aside>
 
-        <!-- Tactical Panel (Direita) -->
+        <!-- Tactical Panel (Right) -->
         <section class="tactical-panel">
+            <!-- Header Nav embedded inside the tactical panel -->
             <header class="header-nav">
                 <div class="logo-area">
                     <h1>ENDFIELD <span>TACTICAL SYS</span></h1>
@@ -47,12 +49,24 @@
             </header>
 
             <div class="tactical-content">
+                <!-- Squad Board -->
                 <div class="squad-board">
                     <h2>Active Formation (<span id="squad-counter">0</span>/4)</h2>
                     <p class="sub-text">Drag operators from the roster or drag within the squad to reorder. Click on a deployed operator to configure.</p>
                     <div class="squad-slots" id="squad-slots"></div>
                 </div>
 
+                <!-- Squad Power / Damage Calculation Board -->
+                <div class="power-board mt-20">
+                    <h2>Squad Combat Potential</h2>
+                    <p class="sub-text">Theoretical Maximum Damage Potential combining deployed operators' stats, active equipment, and multipliers.</p>
+                    <div class="power-display">
+                        <span class="power-label">Total DPS Output Estimation</span>
+                        <span class="power-value" id="squad-total-power">0</span>
+                    </div>
+                </div>
+
+                <!-- Combo Sequence Board -->
                 <div class="combo-board mt-20">
                     <h2>Combat Sequence</h2>
                     <div class="combo-track" id="combo-track"></div>
@@ -61,7 +75,10 @@
         </section>
     </main>
 
-    <!-- Modal Reset -->
+    <!-- Toast Notifications System -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- System Reset Modal -->
     <div id="modal-confirm" class="modal">
         <div class="modal-content modal-sm">
             <h2 class="warning-text">SYSTEM RESET</h2>
@@ -73,7 +90,7 @@
         </div>
     </div>
 
-    <!-- Modal Synergy -->
+    <!-- Synergy Modal -->
     <div id="modal-synergy" class="modal">
         <div class="modal-content modal-lg">
             <span class="close-btn" onclick="closeSynergyModal()">&times;</span>
@@ -83,7 +100,7 @@
         </div>
     </div>
 
-    <!-- Modal Weapon Explorer -->
+    <!-- Weapon Explorer Modal -->
     <div id="modal-weapon" class="modal">
         <div class="modal-content modal-lg">
             <span class="close-btn" onclick="closeWeaponModal()">&times;</span>
@@ -113,7 +130,27 @@
         </div>
     </div>
 
-    <!-- Modal Character Configuration -->
+    <!-- Gear Explorer Modal -->
+    <div id="modal-gear" class="modal">
+        <div class="modal-content modal-lg">
+            <span class="close-btn" onclick="closeGearModal()">&times;</span>
+            <div class="config-header">
+                <div class="config-avatar" id="gear-modal-img"></div>
+                <div class="config-title">
+                    <h2 id="gear-modal-name">Gear Name</h2>
+                    <div style="display: flex; gap: 10px; margin-top: 5px;">
+                        <span class="badge" id="gear-modal-set">Set Name</span>
+                        <span class="badge" id="gear-modal-type">Type</span>
+                    </div>
+                </div>
+            </div>
+            <div class="data-block mt-20" id="gear-modal-stats-container">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Character Configuration Modal (Compact) -->
     <div id="modal-config" class="modal">
         <div class="modal-content modal-xxxl">
             <span class="close-btn" onclick="closeConfigModal()">&times;</span>
@@ -124,11 +161,19 @@
                     <h2><span id="config-char-name"></span> <span class="badge" id="config-origin-badge"></span></h2>
                     <div class="level-input-group">
                         <label>Operator LVL (1-90)</label>
-                        <input type="number" id="conf-level" class="tech-input text-center" min="1" max="90" value="1" oninput="updateLiveStats()">
+                        <input type="number" id="conf-level" class="tech-input text-center" min="1" max="90" value="1" oninput="updateLiveStatsAndDOM()">
                         <span class="attr-badge" id="attr-primary" title="Primary Attribute">STR</span>
                         <span class="attr-badge secondary" id="attr-secondary" title="Secondary Attribute">AGI</span>
                     </div>
                 </div>
+            </div>
+
+            <!-- Character Tabs (Placeholders) -->
+            <div class="roster-tabs" style="margin-bottom: 20px;">
+                <button class="tab-btn active">Combat Loadout</button>
+                <button class="tab-btn">Artworks</button>
+                <button class="tab-btn">Operator Intel</button>
+                <button class="tab-btn">Operator Files</button>
             </div>
             
             <div class="config-grid">
@@ -137,8 +182,8 @@
                     <div class="data-block">
                         <h3>Character Progression</h3>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <div><label style="display: block; font-size: 10px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px;">Affinity (0-4)</label><input type="number" id="conf-char-affinity" class="tech-input text-center full-width" min="0" max="4" value="0" oninput="updateLiveStats()"></div>
-                            <div><label style="display: block; font-size: 10px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px;">Potential (0-5)</label><input type="number" id="conf-char-potential" class="tech-input text-center full-width" min="0" max="5" value="0" oninput="updateLiveStats()"></div>
+                            <div><label style="display: block; font-size: 10px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px;">Affinity (0-4)</label><input type="number" id="conf-char-affinity" class="tech-input text-center full-width" min="0" max="4" value="0" oninput="updateLiveStatsAndDOM()"></div>
+                            <div><label style="display: block; font-size: 10px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px;">Potential (0-5)</label><input type="number" id="conf-char-potential" class="tech-input text-center full-width" min="0" max="5" value="0" oninput="updateLiveStatsAndDOM()"></div>
                         </div>
                     </div>
 
@@ -146,23 +191,23 @@
                         <h3>Weapon Systems</h3>
                         <div class="weapon-display">
                             <div class="weapon-preview" id="preview-weapon"></div>
-                            <select id="conf-weapon-id" class="tech-input full-width" onchange="updateWeaponPreview(); updateLiveStats();"></select>
+                            <select id="conf-weapon-id" class="tech-input full-width" onchange="updateWeaponPreview(); updateLiveStatsAndDOM();"></select>
                         </div>
                         <div class="quad-grid mt-10">
-                            <div><label>Level</label><input type="number" id="conf-weapon-level" class="tech-input text-center" min="1" max="90" value="1" oninput="updateLiveStats()"></div>
-                            <div><label>Eff. 1</label><input type="number" id="conf-weapon-e1" class="tech-input text-center" min="1" max="9" value="1" oninput="updateLiveStats()"></div>
-                            <div><label>Eff. 2</label><input type="number" id="conf-weapon-e2" class="tech-input text-center" min="1" max="9" value="1" oninput="updateLiveStats()"></div>
-                            <div><label>Eff. 3</label><input type="number" id="conf-weapon-e3" class="tech-input text-center" min="1" max="9" value="1" oninput="updateLiveStats()"></div>
+                            <div><label>Level</label><input type="number" id="conf-weapon-level" class="tech-input text-center" min="1" max="90" value="1" oninput="updateLiveStatsAndDOM()"></div>
+                            <div><label>Eff. 1</label><input type="number" id="conf-weapon-e1" class="tech-input text-center" min="1" max="9" value="1" oninput="updateLiveStatsAndDOM()"></div>
+                            <div><label>Eff. 2</label><input type="number" id="conf-weapon-e2" class="tech-input text-center" min="1" max="9" value="1" oninput="updateLiveStatsAndDOM()"></div>
+                            <div><label>Eff. 3</label><input type="number" id="conf-weapon-e3" class="tech-input text-center" min="1" max="9" value="1" oninput="updateLiveStatsAndDOM()"></div>
                         </div>
                     </div>
 
                     <div class="data-block mt-10">
                         <h3>Factory Equipment</h3>
                         <div class="gear-grid">
-                            <div class="gear-item"><label>HEAD</label><select id="conf-armor-head" class="tech-input full-width" onchange="updateLiveStats()"></select><input type="number" id="conf-lvl-head" class="tech-input text-center" min="0" max="20" value="0" oninput="updateLiveStats()"></div>
-                            <div class="gear-item"><label>CORE</label><select id="conf-armor-chest" class="tech-input full-width" onchange="updateLiveStats()"></select><input type="number" id="conf-lvl-chest" class="tech-input text-center" min="0" max="20" value="0" oninput="updateLiveStats()"></div>
-                            <div class="gear-item"><label>ARMS</label><select id="conf-armor-arms" class="tech-input full-width" onchange="updateLiveStats()"></select><input type="number" id="conf-lvl-arms" class="tech-input text-center" min="0" max="20" value="0" oninput="updateLiveStats()"></div>
-                            <div class="gear-item"><label>LEGS</label><select id="conf-armor-legs" class="tech-input full-width" onchange="updateLiveStats()"></select><input type="number" id="conf-lvl-legs" class="tech-input text-center" min="0" max="20" value="0" oninput="updateLiveStats()"></div>
+                            <div class="gear-item"><label>ARMOR</label><select id="conf-equip-armor" class="tech-input full-width" onchange="updateLiveStatsAndDOM()"></select></div>
+                            <div class="gear-item"><label>GLOVES</label><select id="conf-equip-gloves" class="tech-input full-width" onchange="updateLiveStatsAndDOM()"></select></div>
+                            <div class="gear-item"><label>KIT 1</label><select id="conf-equip-kit1" class="tech-input full-width" onchange="updateLiveStatsAndDOM()"></select></div>
+                            <div class="gear-item"><label>KIT 2</label><select id="conf-equip-kit2" class="tech-input full-width" onchange="updateLiveStatsAndDOM()"></select></div>
                         </div>
                     </div>
                 </div>
@@ -170,21 +215,9 @@
                 <!-- Column 2: Ability Matrix & Tactical Data -->
                 <div class="config-col" style="flex: 1.5;">
                     <div class="data-block h-full">
-                        <h3>Ability Matrix & Mechanics</h3>
-                        <div class="matrix-list">
-                            <div class="matrix-row"><div class="matrix-info"><span class="highlight">Basic Attack</span><span id="name-skill-1"></span></div><select id="conf-skill-1" class="tech-input text-center skill-select" onchange="updateLiveStats()"></select></div>
-                            <div class="matrix-row"><div class="matrix-info"><span class="highlight">Normal Skill</span><span id="name-skill-2"></span></div><select id="conf-skill-2" class="tech-input text-center skill-select" onchange="updateLiveStats()"></select></div>
-                            <div class="matrix-row"><div class="matrix-info"><span class="highlight">Ultimate Skill</span><span id="name-skill-3"></span></div><select id="conf-skill-3" class="tech-input text-center skill-select" onchange="updateLiveStats()"></select></div>
-                            <div class="matrix-row"><div class="matrix-info"><span class="highlight">Combo Skill</span><span id="name-skill-4"></span></div><select id="conf-skill-4" class="tech-input text-center skill-select" onchange="updateLiveStats()"></select></div>
-                            
-                            <div class="talent-section mt-10">
-                                <label class="section-label">Talent Nodes (Major & Minor)</label>
-                                <div class="talent-nodes-grid" id="talent-nodes-container"></div>
-                            </div>
-                        </div>
-
-                        <div class="tactical-intel-box mt-10" id="intel-box">
-                            <!-- Injected by JS: Skills, Talents and Potential Data -->
+                        <h3>Skills & Mechanics</h3>
+                        <div class="tactical-intel-box" id="intel-box" style="max-height: 520px; height: 100%;">
+                            <!-- Injected by JS -->
                         </div>
                     </div>
                 </div>
