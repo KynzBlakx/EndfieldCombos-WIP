@@ -1,111 +1,205 @@
 let squad = [null, null, null, null];
 let activeOrigin = null; 
 let activeId = null;
+let currentTab = 'operators'; 
+let currentWeaponModalId = null;
 
-// Enforces limits on number inputs securely
 function clamp(val, min, max) {
     let num = parseInt(val);
     if(isNaN(num)) return min;
     return Math.min(max, Math.max(min, num));
 }
 
-// Complete Weapons Database (Nomenclature and archetypes)
+function formatStat(key, value) {
+    const percentKeys = ['crit_rate', 'crit_dmg', 'phys_res', 'arts_res', 'heat_res', 'elec_res', 'cryo_res', 'nature_res', 'aether_res', 'treat_bonus', 'treat_rec_bonus', 'combo_cd_red', 'ult_gain_eff', 'stagger_eff', 'phys_dmg_bonus', 'heat_dmg_bonus', 'elec_dmg_bonus', 'cryo_dmg_bonus', 'nature_dmg_bonus', 'ult_dmg_bonus'];
+    if (percentKeys.includes(key)) {
+        return Number((value * 100).toFixed(1)) + "%";
+    }
+    return Math.floor(value).toString();
+}
+
+function generateSkillOptions() {
+    let html = "";
+    for(let i=1; i<=9; i++) html += `<option value="${i}">Rank ${i}</option>`;
+    html += `<option value="10">Mastery 1</option>`;
+    html += `<option value="11">Mastery 2</option>`;
+    html += `<option value="12">Mastery 3</option>`;
+    return html;
+}
+
 const weaponsDB = [
-    // Longswords
-    { id: "wpn_lg_01", name: "Endfield Standard Longsword", type: "Longsword", img: "wpn_std_long.jpg", base_atk: 45 },
-    { id: "wpn_lg_02", name: "Talos Blade", type: "Longsword", img: "wpn_talos.jpg", base_atk: 55 },
-    { id: "wpn_lg_03", name: "Valley Protector", type: "Longsword", img: "wpn_rossi.jpg", base_atk: 65 },
-    { id: "wpn_lg_04", name: "Mercenary Edge", type: "Longsword", img: "wpn_mercenary.jpg", base_atk: 50 },
-    { id: "wpn_lg_05", name: "Knight's Oath", type: "Longsword", img: "wpn_knight.jpg", base_atk: 60 },
-    // Greatswords
-    { id: "wpn_gs_01", name: "Endfield Standard Greatsword", type: "Greatsword", img: "wpn_std_great.jpg", base_atk: 50 },
-    { id: "wpn_gs_02", name: "Sunderblade", type: "Greatsword", img: "wpn_sunder.jpg", base_atk: 60 },
-    { id: "wpn_gs_03", name: "Heavy Axe", type: "Greatsword", img: "wpn_machado.jpg", base_atk: 55 },
-    { id: "wpn_gs_04", name: "Earthshaker", type: "Greatsword", img: "wpn_earthshaker.jpg", base_atk: 65 },
-    { id: "wpn_gs_05", name: "Crimson Cleaver", type: "Greatsword", img: "wpn_cleaver.jpg", base_atk: 58 },
-    // Staffs / Scepters
-    { id: "wpn_st_01", name: "Endfield Standard Staff", type: "Staff", img: "wpn_std_staff.jpg", base_atk: 42 },
-    { id: "wpn_st_02", name: "Gravity Scepter", type: "Staff", img: "wpn_gilberta.jpg", base_atk: 62 },
-    { id: "wpn_st_03", name: "Originium Orb", type: "Staff", img: "wpn_orbe.jpg", base_atk: 65 },
-    { id: "wpn_st_04", name: "Sage's Wand", type: "Staff", img: "wpn_sage.jpg", base_atk: 55 },
-    { id: "wpn_st_05", name: "Void Staff", type: "Staff", img: "wpn_void.jpg", base_atk: 60 },
-    // Polearms
-    { id: "wpn_pl_01", name: "Endfield Standard Polearm", type: "Polearm", img: "wpn_std_pole.jpg", base_atk: 46 },
-    { id: "wpn_pl_02", name: "Silver Lance", type: "Polearm", img: "wpn_lance.jpg", base_atk: 56 },
-    { id: "wpn_pl_03", name: "Dragon Halberd", type: "Polearm", img: "wpn_dragon.jpg", base_atk: 64 },
-    { id: "wpn_pl_04", name: "Storm Piercer", type: "Polearm", img: "wpn_storm.jpg", base_atk: 60 },
-    { id: "wpn_pl_05", name: "Royal Pike", type: "Polearm", img: "wpn_royal.jpg", base_atk: 58 },
-    // Firearms
-    { id: "wpn_fa_01", name: "Endfield Standard Firearm", type: "Firearm", img: "wpn_std_fire.jpg", base_atk: 48 },
-    { id: "wpn_fa_02", name: "Tactical Flamethrower", type: "Firearm", img: "wpn_ember.jpg", base_atk: 58 },
-    { id: "wpn_fa_03", name: "Precise Sniper", type: "Firearm", img: "wpn_sniper.jpg", base_atk: 65 },
-    { id: "wpn_fa_04", name: "Burst Rifle", type: "Firearm", img: "wpn_burst.jpg", base_atk: 55 },
-    { id: "wpn_fa_05", name: "Originium Blaster", type: "Firearm", img: "wpn_blaster.jpg", base_atk: 62 },
-    // Twinblades / Daggers
-    { id: "wpn_tw_01", name: "Mercenary Twin Blades", type: "Twinblade", img: "wpn_mercenaria.jpg", base_atk: 44 },
-    { id: "wpn_tw_02", name: "Assassin's Fangs", type: "Twinblade", img: "wpn_fangs.jpg", base_atk: 58 },
-    { id: "wpn_tw_03", name: "Shadow Edges", type: "Twinblade", img: "wpn_shadow.jpg", base_atk: 62 }
+    { 
+        id: "wpn_test_00", name: "Empty Training Weapon (Any)", type: "Any", img: "", 
+        base_atk: 0, max_atk: 0,
+        effects_math: () => ({}),
+        effects_info: []
+    },
+    { 
+        id: "wpn_glorious_memory", name: "Glorious Memory", type: "Longsword", img: "wpn_glorious.jpg", 
+        base_atk: 50, max_atk: 490,
+        effects_math: (e1, e2, e3) => {
+            const agi = [20, 36, 52, 68, 84, 100, 116, 132, 156];
+            const cr = [0.025, 0.045, 0.065, 0.085, 0.105, 0.125, 0.145, 0.165, 0.195];
+            const atkP = [0.07, 0.084, 0.098, 0.112, 0.126, 0.14, 0.154, 0.168, 0.196];
+            const dmgD = [0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.336];
+            return {
+                agility: agi[e1 - 1] || 0,
+                crit_rate: cr[e2 - 1] || 0,
+                atk_percent: atkP[e3 - 1] || 0,
+                ult_dmg_bonus: dmgD[e3 - 1] || 0
+            };
+        },
+        effects_info: [
+            { name: "Agility Boost [G]", desc: (lv) => `Agility <span style="color:var(--primary-yellow)">+${[20, 36, 52, 68, 84, 100, 116, 132, 156][lv-1]}</span>` },
+            { name: "Critical Rate Boost [L]", desc: (lv) => `Critical Rate <span style="color:var(--primary-yellow)">+${([0.025, 0.045, 0.065, 0.085, 0.105, 0.125, 0.145, 0.165, 0.195][lv-1]*100).toFixed(1)}%</span>` },
+            { name: "Twilight: Lingering Glow", desc: (lv) => `ATK <span style="color:var(--primary-yellow)">+${([0.07, 0.084, 0.098, 0.112, 0.126, 0.14, 0.154, 0.168, 0.196][lv-1]*100).toFixed(1)}%</span>. When the wielder's skill applies Vulnerability, during the next ultimate cast within 30s, the wielder gains DMG Dealt <span style="color:var(--primary-yellow)">+${([0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.336][lv-1]*100).toFixed(1)}%</span>. Max stacks for effects of the same name: 3. Duration of each stack is counted separately. Effect only triggers once every 0.5s.` }
+        ]
+    }
 ];
 
-// Complete Lvl 70 Equipment Sets
+const generateGenericWeapon = (num) => ({
+    id: `wpn_blank_${num.toString().padStart(2, '0')}`, name: `Classified Protocol ${num.toString().padStart(2, '0')}`, type: "Unknown", img: "", 
+    base_atk: 50, max_atk: 500,
+    effects_math: () => ({}),
+    effects_info: [
+        { name: "Locked Node Alpha", desc: (lv) => `Effect data missing (Lv.${lv}).` },
+        { name: "Locked Node Beta", desc: (lv) => `Effect data missing (Lv.${lv}).` },
+        { name: "Locked Node Gamma", desc: (lv) => `Effect data missing (Lv.${lv}).` }
+    ]
+});
+for(let i=1; i<=35; i++) weaponsDB.push(generateGenericWeapon(i));
+
 const armorSetsDB = [
-    { id: "set_none", name: "No Equipment", set_effect: "None" },
-    { id: "set_merc", name: "Mercenary Set", set_effect: "Phys DMG" },
-    { id: "set_flash", name: "Flashpoint Set", set_effect: "Heat DMG" },
-    { id: "set_zero", name: "Absolute Zero Set", set_effect: "Cryo DMG" },
-    { id: "set_storm", name: "Storm Set", set_effect: "Electric DMG" },
-    { id: "set_grav", name: "Gravity Anomaly Set", set_effect: "Nature DMG" },
-    { id: "set_arts", name: "Arts Field Set", set_effect: "Arts DMG" },
-    { id: "set_shield", name: "Shieldbreaker Set", set_effect: "Toughness" },
-    { id: "set_front", name: "Frontline Set", set_effect: "Def/HP" },
-    { id: "set_strike", name: "Striker Set", set_effect: "Crit Rate" },
-    { id: "set_assassin", name: "Assassin Set", set_effect: "Crit DMG" }
+    { id: "set_none", name: "No Equipment", mult: {} },
+    { id: "set_merc", name: "Mercenary Set", mult: { phys_dmg_bonus: 0.15 } },
+    { id: "set_flash", name: "Flashpoint Set", mult: { heat_dmg_bonus: 0.15 } },
+    { id: "set_zero", name: "Absolute Zero Set", mult: { cryo_dmg_bonus: 0.15 } },
+    { id: "set_storm", name: "Storm Set", mult: { elec_dmg_bonus: 0.15 } },
+    { id: "set_grav", name: "Gravity Anomaly Set", mult: { nature_dmg_bonus: 0.15 } },
+    { id: "set_arts", name: "Arts Field Set", mult: { treat_bonus: 0.15 } },
+    { id: "set_shield", name: "Shieldbreaker Set", mult: { stagger_eff: 0.15 } },
+    { id: "set_front", name: "Frontline Set", mult: { hp_bonus: 0.15, defense: 0.15 } },
+    { id: "set_strike", name: "Striker Set", mult: { crit_rate: 0.10 } },
+    { id: "set_assassin", name: "Assassin Set", mult: { crit_dmg: 0.20 } }
 ];
+
+const advancedStatsKeys = [
+    { key: "hp", name: "HP" }, { key: "attack", name: "Attack" }, { key: "defense", name: "Defense" },
+    { key: "crit_rate", name: "Critical Rate" }, { key: "crit_dmg", name: "Critical DMG" },
+    { key: "arts_intensity", name: "Arts Intensity" }, { key: "phys_res", name: "Physical Resistance" },
+    { key: "arts_res", name: "Arts Resistance" }, { key: "heat_res", name: "Heat Resistance" }, 
+    { key: "elec_res", name: "Electric Resistance" }, { key: "cryo_res", name: "Cryo Resistance" }, 
+    { key: "nature_res", name: "Nature Resistance" }, { key: "aether_res", name: "Aether Resistance" }, 
+    { key: "treat_bonus", name: "Treatment Bonus" }, { key: "treat_rec_bonus", name: "Heal Received" }, 
+    { key: "combo_cd_red", name: "Combo Skill CD Reduction" }, { key: "ult_gain_eff", name: "Ultimate Gain Efficiency" }, 
+    { key: "stagger_eff", name: "Stagger Efficiency Bonus" }, { key: "phys_dmg_bonus", name: "Physical DMG Bonus" }, 
+    { key: "heat_dmg_bonus", name: "Heat DMG Bonus" }, { key: "elec_dmg_bonus", name: "Electric DMG Bonus" }, 
+    { key: "cryo_dmg_bonus", name: "Cryo DMG Bonus" }, { key: "nature_dmg_bonus", name: "Nature DMG Bonus" }, 
+    { key: "ult_dmg_bonus", name: "Ultimate DMG Bonus" }
+];
+
+const universalBaseStatsTemplate = {
+    crit_rate: 0.05, crit_dmg: 0.50, arts_intensity: 0, phys_res: 0, arts_res: 0, heat_res: 0, elec_res: 0, 
+    cryo_res: 0, nature_res: 0, aether_res: 0, treat_bonus: 0, treat_rec_bonus: 0, combo_cd_red: 0, 
+    ult_gain_eff: 1.0, stagger_eff: 0, phys_dmg_bonus: 0, heat_dmg_bonus: 0, elec_dmg_bonus: 0, 
+    cryo_dmg_bonus: 0, nature_dmg_bonus: 0, ult_dmg_bonus: 0
+};
+
+const generateGenericChar = (id, name, cls, el, img, p_attr, s_attr, ini, con) => ({
+    id, name, class: cls, element: el, img, attr_prim: p_attr, attr_sec: s_attr,
+    breakpoints: {
+        1: { hp: 500, attack: 30, strength: 10, agility: 10, intellect: 10, will: 10 },
+        90: { hp: 5000, attack: 300, strength: 100, agility: 100, intellect: 100, will: 100 }
+    },
+    initiates: ini, continues: con,
+    skills: {
+        basic: { name: "Basic Attack", desc: "Generic Basic Attack sequence." },
+        active: { name: "Active Skill", desc: "Generic Active Skill." },
+        ult: { name: "Ultimate Skill", desc: "Generic Ultimate Skill." },
+        combo: { name: "Combo Skill", desc: "Generic Combo Skill." }
+    },
+    talents_data: {
+        t1: { name: "Talent 1", lv1: "Lv.1 Data missing", lv2: "Lv.2 Data missing" },
+        t2: { name: "Talent 2", lv1: "Lv.1 Data missing", lv2: "Lv.2 Data missing" }
+    },
+    affinity_bonus: [0, 0, 0, 0, 0],
+    getPotentialStats: () => ({}),
+    pot_desc: []
+});
 
 const characters = [
-    { id: "001", name: "Akekuri", element: "Physical", img: "akekuri.jpg", initiates: "None", continues: "Stun", skills: { basic: { name: "Fast Slash" }, active: { name: "Tactical Dash" }, ult: { name: "Crushing Blow" }, passive: { name: "Battle Focus" } } },
-    { id: "002", name: "Alesh", element: "Physical", img: "alesh.jpg", initiates: "None", continues: "Toughness Break", skills: { basic: { name: "Precise Shot" }, active: { name: "Piercing Shot" }, ult: { name: "Bullet Rain" }, passive: { name: "Optical Aim" } } },
-    { id: "003", name: "Antal", element: "Nature", img: "antal.jpg", initiates: "Buff", continues: "None", skills: { basic: { name: "Spore Shot" }, active: { name: "Revitalizing Seed" }, ult: { name: "Bloom Field" }, passive: { name: "Symbiosis" } } },
-    { id: "004", name: "Arclight", element: "Electric", img: "arclight.jpg", initiates: "Paralysis", continues: "None", skills: { basic: { name: "Spark" }, active: { name: "Chain Shock" }, ult: { name: "Magnetic Storm" }, passive: { name: "Living Battery" } } },
-    { id: "005", name: "Ardelia", element: "Nature", img: "ardelia.jpg", initiates: "Vulnerability", continues: "None", skills: { basic: { name: "Leaf Ray" }, active: { name: "Cutting Vines" }, ult: { name: "Thorn Prison" }, passive: { name: "Nature's Touch" } } },
-    { id: "006", name: "Avywenna", element: "Physical", img: "avywenna.jpg", initiates: "None", continues: "Toughness Break", skills: { basic: { name: "Double Attack" }, active: { name: "Cutting Fury" }, ult: { name: "Blade Whirlwind" }, passive: { name: "Mercenary Instinct" } } },
-    { id: "007", name: "Camille", element: "Heat", img: "camille.jpg", initiates: "Thermal Infliction", continues: "Vulnerability", skills: { basic: { name: "Hot Shot" }, active: { name: "Phosphorus Grenade" }, ult: { name: "Ignition Zone" }, passive: { name: "Lingering Fire" } } },
-    { id: "008", name: "Catcher", element: "Physical", img: "catcher.jpg", initiates: "Taunt", continues: "None", skills: { basic: { name: "Shield Strike" }, active: { name: "Tactical Provocation" }, ult: { name: "Impassable Stance" }, passive: { name: "Solid Vanguard" } } },
-    { id: "009", name: "Chen Qianyu", element: "Physical", img: "chen.jpg", initiates: "Knockback", continues: "None", skills: { basic: { name: "Dragon Fist" }, active: { name: "Repulsive Palm" }, ult: { name: "Lungmen Fury" }, passive: { name: "Ancestral Art" } } },
-    { id: "010", name: "Da Pan", element: "Physical", img: "dapan.jpg", initiates: "Crush", continues: "Stun", skills: { basic: { name: "Heavy Swing" }, active: { name: "Seismic Strike" }, ult: { name: "Total Smash" }, passive: { name: "Brute Force" } } },
-    { id: "011", name: "Ember", element: "Heat", img: "ember.jpg", initiates: "Thermal Infliction", continues: "None", skills: { basic: { name: "Flamethrower" }, active: { name: "Fire Barrier" }, ult: { name: "Thermal Explosion" }, passive: { name: "Primal Ignition" } } },
-    { id: "012", name: "Endministrator", element: "Physical", img: "endmin.jpg", initiates: "Toughness Break", continues: "Any", skills: { basic: { name: "Modular Slash" }, active: { name: "Crushing Beam" }, ult: { name: "Contingency Overload" }, passive: { name: "Talos Synergy" } } },
-    { id: "013", name: "Estella", element: "Physical", img: "estella.jpg", initiates: "None", continues: "Toughness Break", skills: { basic: { name: "Agile Blade" }, active: { name: "Double Cut" }, ult: { name: "Sword Dance" }, passive: { name: "Combat Reflex" } } },
-    { id: "014", name: "Fluorite", element: "Arts", img: "fluorite.jpg", initiates: "Slow", continues: "None", skills: { basic: { name: "Crystal Projectile" }, active: { name: "Mineral Prison" }, ult: { name: "Resonance" }, passive: { name: "Retarding Glow" } } },
-    { id: "015", name: "Gilberta", element: "Nature", img: "gilberta.jpg", initiates: "Airborne", continues: "Toughness Break", skills: { basic: { name: "Gravity Beam" }, active: { name: "Weight Inversion" }, ult: { name: "Anti-Gravity Field" }, passive: { name: "Angelina's Heritage" } } },
-    { id: "016", name: "Laevatain", element: "Heat", img: "laevatain.jpg", initiates: "Stagger", continues: "Vulnerability", skills: { basic: { name: "Flaming Strike" }, active: { name: "Caloric Blow" }, ult: { name: "Blade Eruption" }, passive: { name: "Relentless Heat" } } },
-    { id: "017", name: "Last Rite", element: "Cryo", img: "lastrite.jpg", initiates: "Freeze", continues: "Cryo Infliction", skills: { basic: { name: "Frost Scythe" }, active: { name: "Sudden Blizzard" }, ult: { name: "Absolute Zero" }, passive: { name: "Winter's Embrace" } } },
-    { id: "018", name: "Lifeng", element: "Physical", img: "lifeng.jpg", initiates: "Susceptibility", continues: "None", skills: { basic: { name: "Swift Strike" }, active: { name: "Hunter's Mark" }, ult: { name: "Perfect Execution" }, passive: { name: "Eagle Eye" } } },
-    { id: "019", name: "Mi Fu", element: "Physical", img: "mifu.jpg", initiates: "Susceptibility", continues: "Vulnerability", skills: { basic: { name: "Claw Art" }, active: { name: "Defense Break" }, ult: { name: "Fatal Blow" }, passive: { name: "Weak Point" } } },
-    { id: "020", name: "Perlica", element: "Arts", img: "perlica.jpg", initiates: "Slow", continues: "AoE Damage", skills: { basic: { name: "Energy Orb" }, active: { name: "Spatial Distortion" }, ult: { name: "Temporal Collapse" }, passive: { name: "Director's Vision" } } },
-    { id: "021", name: "Pogranichnik", element: "Physical", img: "pogra.jpg", initiates: "Posture Break", continues: "None", skills: { basic: { name: "Heavy Axe" }, active: { name: "War Cry" }, ult: { name: "Earthquake" }, passive: { name: "Military Resistance" } } },
-    { id: "022", name: "Rossi", element: "Physical", img: "rossi.jpg", initiates: "Airborne", continues: "Heat", skills: { basic: { name: "Wolf Strike" }, active: { name: "Ascending Blow" }, ult: { name: "Final Hunt Dance" }, passive: { name: "Valley Leader" } } },
-    { id: "023", name: "Snowshine", element: "Cryo", img: "snowshine.jpg", initiates: "Cryo Infliction", continues: "Taunt", skills: { basic: { name: "Ice Spear" }, active: { name: "Glacial Shield" }, ult: { name: "Winter Wall" }, passive: { name: "Absolute Cold" } } },
-    { id: "024", name: "Tangtang", element: "Physical", img: "tangtang.jpg", initiates: "None", continues: "Toughness Break", skills: { basic: { name: "Smash" }, active: { name: "Destructive Spin" }, ult: { name: "Meteoric Impact" }, passive: { name: "Endless Energy" } } },
-    { id: "025", name: "Wulfgard", element: "Physical", img: "wulfgard.jpg", initiates: "Stun", continues: "None", skills: { basic: { name: "Savage Strike" }, active: { name: "Battle Howl" }, ult: { name: "Lupine Fury" }, passive: { name: "Survival Instinct" } } },
-    { id: "026", name: "Xaihi", element: "Arts", img: "xaihi.jpg", initiates: "Survival", continues: "None", skills: { basic: { name: "Guiding Light" }, active: { name: "Sacred Shield" }, ult: { name: "Purification" }, passive: { name: "Divine Grace" } } },
-    { id: "027", name: "Yvonne", element: "Cryo", img: "yvonne.jpg", initiates: "Cryo Infliction", continues: "Freeze", skills: { basic: { name: "Freezing Shot" }, active: { name: "Arctic Explosion" }, ult: { name: "Snowstorm" }, passive: { name: "Frost Focus" } } },
-    { id: "028", name: "Zhuang Fangyi", element: "Electric", img: "zhuang.jpg", initiates: "DoT Damage", continues: "Sunderblade", skills: { basic: { name: "Lightning Blade" }, active: { name: "Invocation" }, ult: { name: "Thunder Judgment" }, passive: { name: "Electric Conduction" } } }
+    { 
+        id: "022", name: "Rossi", class: "Guard", element: "Physical", img: "rossi.jpg", attr_prim: "agility", attr_sec: "intellect",
+        breakpoints: {
+            1:  { hp: 500,  attack: 30,  strength: 9,  agility: 23,  intellect: 14,  will: 9 },
+            70: { hp: 4372, attack: 258, strength: 78, agility: 142, intellect: 94,  will: 71 },
+            90: { hp: 5495, attack: 323, strength: 97, agility: 176, intellect: 118, will: 89 }
+        },
+        initiates: "Armor Break", continues: "Airborne",
+        skills: { 
+            basic: { name: "Seething Wolfblood", desc: "BASIC ATTACK: An attack with up to 5 sequences that deals Physical DMG. As the controlled operator, Final Strike also deals 1 Stagger. DIVE ATTACK: Basic attack performed in mid-air becomes a dive attack that deals Physical DMG to nearby enemies. FINISHER: Basic attack performed near a Staggered enemy becomes a finisher attack that deals massive Physical DMG and recovers some SP." }, 
+            active: { name: "Crimson Shadow", desc: "Cost: 100. Charges to the target to deal Physical DMG and apply Lift. If the target already has Vulnerability stack(s), the skill also unleashes a Wolven Ambrage that charges at the target to deal Heat DMG." }, 
+            ult: { name: "\"Razorclaw\" Ambuscade", desc: "Cost: 110, CD: 10s. Rossi flutters her cape and unleashes a flurry of stabs that quickly deals multiple sequences of Heat DMG to the target. She then performs a two-sequence slash attack with her dagger that deals massive Heat DMG and applies Heat Infliction. When this skill successfully scores a critical hit, it deals higher Critical DMG." }, 
+            combo: { name: "Moment of Blazing Shadow", desc: "COMBO TRIGGER: When an enemy has both Vulnerability and Arts Infliction stacks. Rossi's combo skill has 2 consecutive sequences. COMBO SEQUENCE 1 deals Physical DMG to the target. COMBO SEQUENCE 2 consumes all Arts Infliction stacks from the target, deals Physical DMG based on the number of Arts Infliction stacks consumed, applies 1 instance of Lift, and buffs Rossi's Critical Rate and Critical DMG Dealt at the same time. If COMBO SEQUENCE 2 is cast with perfect timing, it applies 1 more stack of Vulnerability." }
+        },
+        talents_data: {
+            t1: { name: "Nicks and Scratches", lv1: "Battle skill improved: After Wolven Ambrage deals DMG, Rossi applies Razor Clawmark to the target for 15s. This effect cannot stack. For the duration of Razor Clawmark, the target takes 25% ATK (Rossi's) of Physical DMG per second and suffers Physical DMG Taken and Heat DMG Taken +6%.", lv2: "Battle skill improved: After Wolven Ambrage deals DMG, Rossi applies Razor Clawmark to the target for 25s. This effect cannot stack. For the duration of Razor Clawmark, the target takes 30% ATK (Rossi's) of Physical DMG per second and suffers Physical DMG Taken and Heat DMG Taken +12%." },
+            t2: { name: "Seething Blood", lv1: "When Rossi's skill deals Critical DMG to a Razor Clawmarked enemy, trigger another hit that deals 12% ATK (Rossi's) of Heat DMG and restores [Intellect × 0.04] HP to Rossi. If the target is also Combusted, then the aforementioned DMG and HP Restoration effects are increased to 1.5 times.", lv2: "When Rossi's skill deals Critical DMG to a Razor Clawmarked enemy, trigger another hit that deals 24% ATK (Rossi's) of Heat DMG and restores [Intellect × 0.08] HP to Rossi. If the target is also Combusted, then the aforementioned DMG and HP Restoration effects are increased to 1.5 times." }
+        },
+        affinity_bonus: [0, 10, 25, 40, 60],
+        getPotentialStats: (potLevel) => {
+            let b = { agility: 0, crit_rate: 0, crit_dmg: 0 };
+            if(potLevel >= 2) { b.agility += 20; b.crit_rate += 0.07; }
+            if(potLevel >= 5) { b.crit_dmg += 0.30; }
+            return b;
+        },
+        pot_desc: [
+            "Pot 1 (Origin of Admiration): Crimson Shadow & Moment of Blazing Shadow Multipliers x1.15. Wolven Ambrage returns 10 SP.",
+            "Pot 2 (Gap to Perfection): Agility +20, Critical Rate +7%.",
+            "Pot 3 (Tangible Duties): Talent Seething Blood improved: Base DMG Multiplier +8%, restores HP +[Intellect × 0.04].",
+            "Pot 4 (Innocent Wish): Ultimate Energy cost -15%.",
+            "Pot 5 (Legendary Destination): Ultimate DMG x1.1, Critical DMG Dealt +30%."
+        ]
+    },
+    generateGenericChar("012", "Endministrator", "Striker", "Physical", "endmin.jpg", "will", "strength", "Airborne", "Armor Break"),
+    generateGenericChar("020", "Perlica", "Caster", "Arts", "perlica.jpg", "intellect", "will", "Arts Vulnerability", "Slow"),
+    generateGenericChar("001", "Akekuri", "Vanguard", "Physical", "akekuri.jpg", "agility", "will", "Stun", "Armor Break"),
+    generateGenericChar("002", "Alesh", "Striker", "Physical", "alesh.jpg", "agility", "intellect", "Armor Break", "Slow"),
+    generateGenericChar("003", "Antal", "Supporter", "Nature", "antal.jpg", "will", "intellect", "Nature's Bind", "Knockdown"),
+    generateGenericChar("004", "Arclight", "Caster", "Electric", "arclight.jpg", "intellect", "agility", "Paralysis", "Stagger"),
+    generateGenericChar("005", "Ardelia", "Supporter", "Nature", "ardelia.jpg", "will", "intellect", "Slow", "Nature's Bind"),
+    generateGenericChar("006", "Avywenna", "Guard", "Physical", "avywenna.jpg", "agility", "strength", "Armor Break", "Stagger"),
+    generateGenericChar("007", "Camille", "Caster", "Heat", "camille.jpg", "intellect", "will", "Burn", "Stun"),
+    generateGenericChar("008", "Catcher", "Defender", "Physical", "catcher.jpg", "strength", "will", "Taunt", "Paralysis"),
+    generateGenericChar("009", "Chen Qianyu", "Guard", "Physical", "chen.jpg", "strength", "will", "Knockdown", "Stagger"),
+    generateGenericChar("010", "Da Pan", "Defender", "Physical", "dapan.jpg", "strength", "will", "Knockdown", "Airborne"),
+    generateGenericChar("011", "Ember", "Caster", "Heat", "ember.jpg", "intellect", "agility", "Burn", "Armor Break"),
+    generateGenericChar("013", "Estella", "Guard", "Physical", "estella.jpg", "agility", "strength", "Stagger", "Knockdown"),
+    generateGenericChar("014", "Fluorite", "Supporter", "Arts", "fluorite.jpg", "will", "intellect", "Crystalize", "Arts Vulnerability"),
+    generateGenericChar("015", "Gilberta", "Supporter", "Nature", "gilberta.jpg", "intellect", "will", "Slow", "Airborne"),
+    generateGenericChar("016", "Laevatain", "Guard", "Heat", "laevatain.jpg", "strength", "intellect", "Arts Vulnerability", "Burn"),
+    generateGenericChar("017", "Last Rite", "Caster", "Cryo", "lastrite.jpg", "intellect", "will", "Freeze", "Armor Break"),
+    generateGenericChar("018", "Lifeng", "Striker", "Physical", "lifeng.jpg", "agility", "strength", "Knockback", "Airborne"),
+    generateGenericChar("019", "Mi Fu", "Guard", "Physical", "mifu.jpg", "strength", "agility", "Armor Break", "Knockdown"),
+    generateGenericChar("021", "Pogranichnik", "Defender", "Physical", "pogra.jpg", "will", "strength", "Stagger", "Freeze"),
+    generateGenericChar("023", "Snowshine", "Defender", "Cryo", "snowshine.jpg", "strength", "will", "Slow", "Stagger"),
+    generateGenericChar("024", "Tangtang", "Vanguard", "Physical", "tangtang.jpg", "strength", "agility", "Knockback", "Armor Break"),
+    generateGenericChar("025", "Wulfgard", "Guard", "Physical", "wulfgard.jpg", "strength", "agility", "Stagger", "Knockdown"),
+    generateGenericChar("026", "Xaihi", "Supporter", "Arts", "xaihi.jpg", "will", "intellect", "Arts Vulnerability", "Crystalize"),
+    generateGenericChar("027", "Yvonne", "Striker", "Cryo", "yvonne.jpg", "agility", "intellect", "Freeze", "Airborne"),
+    generateGenericChar("028", "Zhuang Fangyi", "Caster", "Electric", "zhuang.jpg", "intellect", "agility", "Paralysis", "Arts Vulnerability")
 ];
 
 function initDatabase() {
     characters.forEach(p => {
         p.status = {
-            level: 1, skill_1: 1, skill_2: 1, skill_3: 1,
-            weapon_id: "wpn_lg_01", weapon_level: 1, weapon_essence: 1, weapon_potential: 1,
-            // 4 distinct armor pieces
-            armor: {
-                head: { id: "set_none", level: 0 },
-                chest: { id: "set_none", level: 0 },
-                arms: { id: "set_none", level: 0 },
-                legs: { id: "set_none", level: 0 }
-            },
-            talents: [false, false, false, false, false, false]
+            level: 1, affinity: 0, potential: 0, 
+            talent_1_brk: 1, talent_2_brk: 1, 
+            skill_1: 1, skill_2: 1, skill_3: 1, skill_4: 1,
+            weapon_id: "wpn_test_00", weapon_level: 1, weapon_e1: 1, weapon_e2: 1, weapon_e3: 1,
+            armor: { head: { id: "set_none", level: 0 }, chest: { id: "set_none", level: 0 }, arms: { id: "set_none", level: 0 }, legs: { id: "set_none", level: 0 } },
+            talents: Array(10).fill(false),
+            stats: {}
         };
     });
 }
@@ -113,10 +207,18 @@ initDatabase();
 
 window.onload = function() {
     initSelects();
-    renderCharacters();
+    renderRoster();
     renderSquad();
     attachValidation();
 };
+
+function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('tab-btn-operators').classList.toggle('active', tab === 'operators');
+    document.getElementById('tab-btn-weapons').classList.toggle('active', tab === 'weapons');
+    document.getElementById('filter-element').style.display = tab === 'operators' ? 'inline-block' : 'none';
+    renderRoster();
+}
 
 function initSelects() {
     const selWpn = document.getElementById("conf-weapon-id");
@@ -127,11 +229,11 @@ function initSelects() {
     parts.forEach(part => {
         const sel = document.getElementById(`conf-armor-${part}`);
         sel.innerHTML = "";
-        armorSetsDB.forEach(s => {
-            const label = s.id === "set_none" ? s.name : `${s.name} (${s.set_effect})`;
-            sel.innerHTML += `<option value="${s.id}">${label}</option>`;
-        });
+        armorSetsDB.forEach(s => { sel.innerHTML += `<option value="${s.id}">${s.name}</option>`; });
     });
+
+    const skillOptions = generateSkillOptions();
+    for (let i = 1; i <= 4; i++) { document.getElementById(`conf-skill-${i}`).innerHTML = skillOptions; }
 }
 
 function attachValidation() {
@@ -141,43 +243,60 @@ function attachValidation() {
     });
 }
 
-function renderCharacters() {
+function renderRoster() {
     const grid = document.getElementById("character-grid");
-    const filter = document.getElementById("filter-element").value;
     const search = document.getElementById("search-name").value.toLowerCase();
-    
     grid.innerHTML = "";
-    characters.forEach(p => {
-        if ((filter === "All" || p.element === filter) && p.name.toLowerCase().includes(search)) {
-            // Origin explicitly sent as 'roster'
-            grid.innerHTML += `
-                <div class="char-card" draggable="true" ondragstart="drag(event, 'roster', '${p.id}')">
-                    <div class="btn-gear" onmousedown="event.stopPropagation()" onclick="openSettings('list', '${p.id}')">⚙️</div>
-                    <div class="char-img" style="background-image: url('imagens/${p.img}');"></div>
-                    <div class="char-info">
-                        <strong>${p.name}</strong>
-                        <span>${p.element} • LVL ${p.status.level}</span>
+
+    if (currentTab === 'operators') {
+        const filter = document.getElementById("filter-element").value;
+        characters.forEach(p => {
+            if ((filter === "All" || p.element === filter) && p.name.toLowerCase().includes(search)) {
+                grid.innerHTML += `
+                    <div class="char-card" draggable="true" ondragstart="drag(event, 'roster', '${p.id}')" onclick="openSettings('list', '${p.id}')">
+                        <div class="char-img" style="${p.img ? `background-image: url('imagens/${p.img}');` : ''}">
+                            ${!p.img ? '<span style="color: var(--border-dim); font-size: 40px; font-weight: bold;">?</span>' : ''}
+                        </div>
+                        <div class="char-info">
+                            <strong>${p.name}</strong>
+                            <span>${p.class} • ${p.element} • LVL ${p.status.level}</span>
+                        </div>
+                        <button class="btn-suggestion" onclick="event.stopPropagation(); openSynergyModal('${p.id}')">Tactics</button>
                     </div>
-                    <button class="btn-suggestion" onmousedown="event.stopPropagation()" onclick="openSynergyModal('${p.id}')">Tactics</button>
-                </div>
-            `;
-        }
-    });
+                `;
+            }
+        });
+    } else {
+        weaponsDB.forEach(w => {
+            if (w.name.toLowerCase().includes(search)) {
+                grid.innerHTML += `
+                    <div class="char-card" onclick="openWeaponModal('${w.id}')">
+                        <div class="wpn-img" style="${w.img ? `background-image: url('imagens/${w.img}');` : ''}">
+                            ${!w.img ? '<span style="color: var(--border-dim); font-size: 40px; font-weight: bold;">?</span>' : ''}
+                        </div>
+                        <div class="char-info">
+                            <strong>${w.name}</strong>
+                            <span>${w.type}</span>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+    }
 }
 
 function renderSquad() {
     const slots = document.getElementById("squad-slots");
     document.getElementById("squad-counter").innerText = squad.filter(p => p !== null).length;
     slots.innerHTML = "";
-    
     for(let i = 0; i < 4; i++) {
         if (squad[i]) {
             const c = squad[i];
-            // Origin explicitly sent as 'squad' to allow internal reordering
             slots.innerHTML += `
-                <div class="slot slot-filled" draggable="true" ondragstart="drag(event, 'squad', '${i}')" ondrop="drop(event, ${i})" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)" style="background-image: linear-gradient(to top, rgba(0,0,0,0.9), transparent), url('imagens/${c.img}');">
-                    <button class="btn-remove" onmousedown="event.stopPropagation()" onclick="removeFromSquad(${i})">X</button>
-                    <div class="btn-gear" onmousedown="event.stopPropagation()" onclick="openSettings('squad', ${i})">⚙️</div>
+                <div class="slot slot-filled" draggable="true" ondragstart="drag(event, 'squad', '${i}')" ondrop="drop(event, ${i})" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)" style="${c.img ? `background-image: linear-gradient(to top, rgba(0,0,0,0.9), transparent), url('imagens/${c.img}'); background-size: cover;` : `background: var(--bg-dark);`}" onclick="openSettings('squad', ${i})">
+                    <button class="btn-remove" onclick="event.stopPropagation(); removeFromSquad(${i})">X</button>
+                    ${!c.img ? '<span style="color: var(--border-dim); font-size: 40px; font-weight: bold; position: absolute; top: 30%;">?</span>' : ''}
+                    <div style="flex:1;"></div>
                     <strong>${c.name}</strong>
                     <span>LVL ${c.status.level}</span>
                 </div>
@@ -189,20 +308,14 @@ function renderSquad() {
     calcCombo();
 }
 
-function drag(ev, origin, val) { 
-    ev.dataTransfer.setData("origin", origin);
-    ev.dataTransfer.setData("val", val);
-}
+function drag(ev, origin, val) { ev.dataTransfer.setData("origin", origin); ev.dataTransfer.setData("val", val); }
 function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add("dragover"); }
 function leaveDrop(ev) { ev.currentTarget.classList.remove("dragover"); }
 function drop(ev, idx) {
     ev.preventDefault(); ev.currentTarget.classList.remove("dragover");
-    
     const origin = ev.dataTransfer.getData("origin");
     const val = ev.dataTransfer.getData("val");
-    
     if (!origin) return;
-
     if (origin === 'roster') {
         const char = characters.find(p => p.id === val);
         const oldPos = squad.findIndex(p => p && p.id === val);
@@ -223,34 +336,351 @@ function clearSquad() { squad = [null, null, null, null]; renderSquad(); }
 function updateWeaponPreview() {
     const id = document.getElementById("conf-weapon-id").value;
     const wpn = weaponsDB.find(w => w.id === id);
-    if(wpn) document.getElementById("preview-weapon").style.backgroundImage = `url('imagens/${wpn.img}')`;
+    const preview = document.getElementById("preview-weapon");
+    if(wpn && wpn.img) {
+        preview.style.backgroundImage = `url('imagens/${wpn.img}')`;
+        preview.innerHTML = "";
+    } else {
+        preview.style.backgroundImage = "none";
+        preview.innerHTML = '<span style="color: var(--border-dim); font-size: 24px; font-weight: bold;">?</span>';
+    }
+}
+
+function renderAdvancedStats(statsObj) {
+    const container = document.getElementById("advanced-stats-container");
+    container.innerHTML = "";
+    advancedStatsKeys.forEach(stat => {
+        let val = formatStat(stat.key, statsObj[stat.key] || 0);
+        container.innerHTML += `<div class="stat-row"><span class="stat-name">${stat.name}</span><span class="stat-val">${val}</span></div>`;
+    });
+}
+
+function getBP(bp, key, lvl) {
+    let levels = Object.keys(bp).map(Number).sort((a,b)=>a-b);
+    if (lvl <= levels[0]) return bp[levels[0]][key];
+    if (lvl >= levels[levels.length-1]) return bp[levels[levels.length-1]][key];
+    
+    let lower = levels[0], upper = levels[levels.length-1];
+    for (let i = 0; i < levels.length - 1; i++) {
+        if (lvl >= levels[i] && lvl <= levels[i+1]) {
+            lower = levels[i]; upper = levels[i+1]; break;
+        }
+    }
+    let t = (lvl - lower) / (upper - lower);
+    return bp[lower][key] + (bp[upper][key] - bp[lower][key]) * t;
+}
+
+window.setTalentBrk = function(talentNum, val) {
+    if (activeId === null) return;
+    let c = activeOrigin === 'list' ? characters.find(p => p.id === activeId) : squad[activeId];
+    if (!c) return;
+    if (talentNum === 1) c.status.talent_1_brk = parseInt(val);
+    if (talentNum === 2) c.status.talent_2_brk = parseInt(val);
+    updateDescriptions();
+};
+
+function updateDescriptions() {
+    if (activeId === null) return;
+    let c = activeOrigin === 'list' ? characters.find(p => p.id === activeId) : squad[activeId];
+    if (!c) return;
+
+    let pot = clamp(document.getElementById("conf-char-potential").value, 0, 5) || 0;
+    let box = document.getElementById("intel-box");
+
+    let t1_lvl = c.status.talent_1_brk || 1;
+    let t2_lvl = c.status.talent_2_brk || 1;
+
+    let html = `
+        <div class="intel-item">
+            <span class="intel-title">Basic Attack</span>
+            <span class="intel-subtitle">${c.skills.basic.name}</span>
+            <p class="intel-desc">${c.skills.basic.desc}</p>
+        </div>
+        <div class="intel-item">
+            <span class="intel-title">Normal Skill</span>
+            <span class="intel-subtitle">${c.skills.active.name}</span>
+            <p class="intel-desc">${c.skills.active.desc}</p>
+        </div>
+        <div class="intel-item">
+            <span class="intel-title">Ultimate Skill</span>
+            <span class="intel-subtitle">${c.skills.ult.name}</span>
+            <p class="intel-desc">${c.skills.ult.desc}</p>
+        </div>
+        <div class="intel-item">
+            <span class="intel-title">Combo Skill</span>
+            <span class="intel-subtitle">${c.skills.combo.name}</span>
+            <p class="intel-desc">${c.skills.combo.desc}</p>
+        </div>
+        <div class="intel-item">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <span class="intel-title" style="margin-bottom: 0;">Talent 1 Breakthrough</span>
+                <select class="tech-input" style="padding: 2px 5px; font-size: 10px; width: auto;" onchange="setTalentBrk(1, this.value)">
+                    <option value="1" ${t1_lvl === 1 ? 'selected' : ''}>Lv.1 (E1)</option>
+                    <option value="2" ${t1_lvl === 2 ? 'selected' : ''}>Lv.2 (E2)</option>
+                </select>
+            </div>
+            <span class="intel-subtitle">${c.talents_data.t1.name}</span>
+            <p class="intel-desc" style="color:var(--primary-yellow); font-style:italic;">${t1_lvl === 1 ? c.talents_data.t1.lv1 : c.talents_data.t1.lv2}</p>
+        </div>
+        <div class="intel-item">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <span class="intel-title" style="margin-bottom: 0;">Talent 2 Breakthrough</span>
+                <select class="tech-input" style="padding: 2px 5px; font-size: 10px; width: auto;" onchange="setTalentBrk(2, this.value)">
+                    <option value="1" ${t2_lvl === 1 ? 'selected' : ''}>Lv.1 (E2)</option>
+                    <option value="2" ${t2_lvl === 2 ? 'selected' : ''}>Lv.2 (E3)</option>
+                </select>
+            </div>
+            <span class="intel-subtitle">${c.talents_data.t2.name}</span>
+            <p class="intel-desc" style="color:var(--primary-yellow); font-style:italic;">${t2_lvl === 1 ? c.talents_data.t2.lv1 : c.talents_data.t2.lv2}</p>
+        </div>
+    `;
+
+    if (pot > 0 && c.pot_desc && c.pot_desc.length > 0) {
+        html += `<div class="intel-item"><span class="intel-title">Active Potentials</span>`;
+        for (let i = 0; i < pot; i++) {
+            if (c.pot_desc[i]) {
+                html += `<p class="intel-desc" style="margin-top: 4px;">• ${c.pot_desc[i]}</p>`;
+            }
+        }
+        html += `</div>`;
+    }
+
+    box.innerHTML = html;
+}
+
+function updateLiveStats() {
+    if (activeId === null) return;
+    let c = activeOrigin === 'list' ? characters.find(p => p.id === activeId) : squad[activeId];
+    if (!c) return;
+
+    let lvl = clamp(document.getElementById("conf-level").value, 1, 90) || 1;
+    let affinity = clamp(document.getElementById("conf-char-affinity").value, 0, 4) || 0;
+    let potential = clamp(document.getElementById("conf-char-potential").value, 0, 5) || 0;
+
+    let wpnId = document.getElementById("conf-weapon-id").value;
+    let wpnLvl = clamp(document.getElementById("conf-weapon-level").value, 1, 90) || 1;
+    let wpnE1 = clamp(document.getElementById("conf-weapon-e1").value, 1, 9) || 1;
+    let wpnE2 = clamp(document.getElementById("conf-weapon-e2").value, 1, 9) || 1;
+    let wpnE3 = clamp(document.getElementById("conf-weapon-e3").value, 1, 9) || 1;
+    
+    let armors = [
+        document.getElementById("conf-armor-head").value, document.getElementById("conf-armor-chest").value,
+        document.getElementById("conf-armor-arms").value, document.getElementById("conf-armor-legs").value
+    ];
+    let armLvls = [
+        clamp(document.getElementById("conf-lvl-head").value, 0, 20) || 0, clamp(document.getElementById("conf-lvl-chest").value, 0, 20) || 0,
+        clamp(document.getElementById("conf-lvl-arms").value, 0, 20) || 0, clamp(document.getElementById("conf-lvl-legs").value, 0, 20) || 0
+    ];
+
+    let attr = {
+        strength: Math.round(getBP(c.breakpoints, 'strength', lvl)),
+        agility: Math.round(getBP(c.breakpoints, 'agility', lvl)),
+        intellect: Math.round(getBP(c.breakpoints, 'intellect', lvl)),
+        will: Math.round(getBP(c.breakpoints, 'will', lvl))
+    };
+
+    if (c.affinity_bonus && c.affinity_bonus[affinity]) attr.agility += c.affinity_bonus[affinity];
+    
+    let potBonus = c.getPotentialStats(potential);
+    if (potBonus.agility) attr.agility += potBonus.agility;
+
+    let stats = { ...universalBaseStatsTemplate };
+    let base_hp = getBP(c.breakpoints, 'hp', lvl);
+    let base_atk = getBP(c.breakpoints, 'attack', lvl);
+    stats.defense = 0; 
+    
+    if (potBonus.crit_rate) stats.crit_rate += potBonus.crit_rate;
+    if (potBonus.crit_dmg) stats.crit_dmg += potBonus.crit_dmg;
+
+    let wpn = weaponsDB.find(w => w.id === wpnId);
+    let wpnTotalAtk = 0;
+    let wpnBonus = null;
+
+    if (wpn && wpn.max_atk > 0) {
+        let wpnGrowth = (wpn.max_atk - wpn.base_atk) / 89;
+        wpnTotalAtk = wpn.base_atk + (wpnLvl - 1) * wpnGrowth;
+        if (wpn.effects_math) {
+            wpnBonus = wpn.effects_math(wpnE1, wpnE2, wpnE3);
+        }
+    }
+
+    if (wpnBonus && wpnBonus.agility) {
+        attr.agility += wpnBonus.agility;
+    }
+
+    stats.hp = Math.floor(base_hp + attr.strength * 5); 
+    
+    let mainBonus = attr[c.attr_prim] * 0.005;
+    let subBonus = attr[c.attr_sec] * 0.002;
+    let attrAtkMultiplier = mainBonus + subBonus;
+
+    if (wpnBonus && wpnBonus.atk_percent) {
+        attrAtkMultiplier += wpnBonus.atk_percent;
+    }
+
+    stats.attack = Math.floor((base_atk + wpnTotalAtk) * (1 + attrAtkMultiplier));
+    stats.phys_res = attr.agility * 0.001;
+    stats.arts_res = attr.intellect * 0.001;
+    stats.treat_rec_bonus = attr.will * 0.001;
+
+    if (wpnBonus && wpnBonus.crit_rate) stats.crit_rate += wpnBonus.crit_rate;
+    if (wpnBonus && wpnBonus.ult_dmg_bonus) stats.ult_dmg_bonus += wpnBonus.ult_dmg_bonus;
+
+    let totalArmLvl = armLvls.reduce((a,b)=>a+b, 0);
+    stats.hp += totalArmLvl * 25;
+    stats.defense += totalArmLvl * 3;
+
+    let setsCount = {};
+    armors.forEach(id => { if(id !== "set_none") setsCount[id] = (setsCount[id] || 0) + 1; });
+    for (let setId in setsCount) {
+        if (setsCount[setId] >= 4) {
+            let setObj = armorSetsDB.find(s => s.id === setId);
+            if (setObj && setObj.mult) {
+                for (let key in setObj.mult) { stats[key] += setObj.mult[key]; }
+            }
+        }
+    }
+
+    let talents = [];
+    document.querySelectorAll(".talent-box").forEach(b => talents.push(b.classList.contains("active")));
+
+    let minorAtkBonus = 0, minorHpBonus = 0;
+    if (talents[4]) minorAtkBonus += 0.05;
+    if (talents[5]) minorAtkBonus += 0.05;
+    if (talents[6]) minorHpBonus += 0.05;
+    if (talents[7]) minorHpBonus += 0.05;
+    if (talents[8]) stats.defense += 30;
+    if (talents[9]) stats.crit_rate += 0.03;
+
+    stats.attack = Math.floor(stats.attack * (1 + minorAtkBonus));
+    stats.hp = Math.floor(stats.hp * (1 + minorHpBonus));
+
+    c.status.stats = stats;
+    renderAdvancedStats(stats);
+    updateDescriptions();
+}
+
+window.updateWeaponModalStats = function() {
+    if (!currentWeaponModalId) return;
+    const w = weaponsDB.find(x => x.id === currentWeaponModalId);
+    if (!w) return;
+
+    let lvl = clamp(document.getElementById("wpn-modal-level").value, 1, 90) || 1;
+    let atk = 0;
+    
+    if (w.max_atk > 0) {
+        let wpnGrowth = (w.max_atk - w.base_atk) / 89;
+        atk = Math.round(w.base_atk + (lvl - 1) * wpnGrowth);
+    }
+    document.getElementById("wpn-modal-atk").innerText = atk;
+
+    let e1 = clamp(document.getElementById("wpn-modal-e1") ? document.getElementById("wpn-modal-e1").value : 1, 1, 9);
+    let e2 = clamp(document.getElementById("wpn-modal-e2") ? document.getElementById("wpn-modal-e2").value : 1, 1, 9);
+    let e3 = clamp(document.getElementById("wpn-modal-e3") ? document.getElementById("wpn-modal-e3").value : 1, 1, 9);
+
+    const cont = document.getElementById("wpn-modal-effects-container");
+    if (!w.effects_info || w.effects_info.length === 0) {
+        cont.innerHTML = "<p class='sub-text'>No advanced nodes available for this weapon.</p>";
+        return;
+    }
+
+    let html = `<h3>Node Progression</h3>`;
+    let lvls = [e1, e2, e3];
+    
+    w.effects_info.forEach((eff, i) => {
+        html += `
+        <div class="intel-item">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <span class="intel-title" style="margin-bottom: 0;">${eff.name}</span>
+                <select class="tech-input" style="padding: 2px 5px; font-size: 10px; width: auto;" id="wpn-modal-e${i+1}" onchange="updateWeaponModalStats()">
+                    ${[1,2,3,4,5,6,7,8,9].map(n => `<option value="${n}" ${lvls[i] === n ? 'selected' : ''}>Lv.${n}</option>`).join('')}
+                </select>
+            </div>
+            <p class="intel-desc">${eff.desc(lvls[i])}</p>
+        </div>`;
+    });
+    cont.innerHTML = html;
+};
+
+function openWeaponModal(wpnId) {
+    currentWeaponModalId = wpnId;
+    const w = weaponsDB.find(x => x.id === wpnId);
+    if (!w) return;
+
+    const imgDiv = document.getElementById("wpn-modal-img");
+    if(w.img) {
+        imgDiv.style.backgroundImage = `url('imagens/${w.img}')`;
+        imgDiv.innerHTML = "";
+    } else {
+        imgDiv.style.backgroundImage = "none";
+        imgDiv.innerHTML = '<span style="color: var(--border-dim); font-size: 30px; font-weight: bold;">?</span>';
+    }
+
+    document.getElementById("wpn-modal-name").innerText = w.name;
+    document.getElementById("wpn-modal-type").innerText = w.type;
+    document.getElementById("wpn-modal-level").value = 1;
+    
+    document.getElementById("modal-weapon").style.display = "flex";
+    updateWeaponModalStats();
+}
+
+function closeWeaponModal() {
+    document.getElementById("modal-weapon").style.display = "none";
+    currentWeaponModalId = null;
+}
+
+function saveWeaponModal() {
+    const btn = document.getElementById("btn-save-weapon");
+    const originalText = btn.innerText;
+    btn.innerText = "SAVED ✓";
+    btn.style.backgroundColor = "#2ECC71";
+    btn.style.color = "#000";
+    setTimeout(() => {
+        btn.innerText = originalText;
+        btn.style.backgroundColor = "";
+        btn.style.color = "";
+    }, 1500);
 }
 
 function openSettings(origin, idVal) {
-    activeOrigin = origin; 
-    activeId = idVal;
-    
+    activeOrigin = origin; activeId = idVal;
     let target = origin === 'list' ? characters.find(p => p.id === idVal) : squad[idVal];
     if (!target) return;
 
-    document.getElementById("config-avatar").style.backgroundImage = `url('imagens/${target.img}')`;
+    const avatarDiv = document.getElementById("config-avatar");
+    if(target.img) {
+        avatarDiv.style.backgroundImage = `url('imagens/${target.img}')`;
+        avatarDiv.innerHTML = "";
+    } else {
+        avatarDiv.style.backgroundImage = "none";
+        avatarDiv.innerHTML = '<span style="color: var(--border-dim); font-size: 30px; font-weight: bold;">?</span>';
+    }
+
     document.getElementById("config-char-name").innerText = target.name;
     document.getElementById("config-origin-badge").innerText = origin === 'list' ? "BASE DB" : "SQUAD CLONE";
-    
+    document.getElementById("attr-primary").innerText = target.attr_prim.toUpperCase();
+    document.getElementById("attr-secondary").innerText = target.attr_sec.toUpperCase();
+
     document.getElementById("conf-level").value = target.status.level;
+    document.getElementById("conf-char-affinity").value = target.status.affinity;
+    document.getElementById("conf-char-potential").value = target.status.potential;
+
     document.getElementById("name-skill-1").innerText = target.skills.basic.name;
     document.getElementById("name-skill-2").innerText = target.skills.active.name;
     document.getElementById("name-skill-3").innerText = target.skills.ult.name;
-    document.getElementById("name-skill-4").innerText = target.skills.passive.name;
+    document.getElementById("name-skill-4").innerText = target.skills.combo.name;
     
     document.getElementById("conf-skill-1").value = target.status.skill_1;
     document.getElementById("conf-skill-2").value = target.status.skill_2;
     document.getElementById("conf-skill-3").value = target.status.skill_3;
+    document.getElementById("conf-skill-4").value = target.status.skill_4;
     
     document.getElementById("conf-weapon-id").value = target.status.weapon_id;
     document.getElementById("conf-weapon-level").value = target.status.weapon_level;
-    document.getElementById("conf-weapon-essence").value = target.status.weapon_essence;
-    document.getElementById("conf-weapon-potential").value = target.status.weapon_potential;
+    document.getElementById("conf-weapon-e1").value = target.status.weapon_e1 || 1;
+    document.getElementById("conf-weapon-e2").value = target.status.weapon_e2 || 1;
+    document.getElementById("conf-weapon-e3").value = target.status.weapon_e3 || 1;
+    
     updateWeaponPreview();
     
     const parts = ["head", "chest", "arms", "legs"];
@@ -261,30 +691,34 @@ function openSettings(origin, idVal) {
 
     const tCont = document.getElementById("talent-nodes-container");
     tCont.innerHTML = "";
-    for(let i=0; i<6; i++) {
+    for(let i=0; i<10; i++) {
         let isActive = target.status.talents[i] ? "active" : "";
-        tCont.innerHTML += `<div class="talent-box ${isActive}" onclick="toggleTalent(this, ${i})">${i+1}</div>`;
+        let nodeClass = i < 4 ? "major" : "minor";
+        let icon = i < 4 ? ["α", "β", "γ", "δ"][i] : "+";
+        tCont.innerHTML += `<div class="talent-box ${nodeClass} ${isActive}" onclick="toggleTalent(this, ${i})">${icon}</div>`;
     }
 
     document.getElementById("modal-config").style.display = "flex";
-}
-
-function toggleTalent(element, index) {
-    element.classList.toggle("active");
+    updateLiveStats();
 }
 
 function saveConfig() {
     let target = activeOrigin === 'list' ? characters.find(p => p.id === activeId) : squad[activeId];
     
     target.status.level = clamp(document.getElementById("conf-level").value, 1, 90);
-    target.status.skill_1 = clamp(document.getElementById("conf-skill-1").value, 1, 7);
-    target.status.skill_2 = clamp(document.getElementById("conf-skill-2").value, 1, 7);
-    target.status.skill_3 = clamp(document.getElementById("conf-skill-3").value, 1, 7);
+    target.status.affinity = clamp(document.getElementById("conf-char-affinity").value, 0, 4);
+    target.status.potential = clamp(document.getElementById("conf-char-potential").value, 0, 5);
+
+    target.status.skill_1 = parseInt(document.getElementById("conf-skill-1").value);
+    target.status.skill_2 = parseInt(document.getElementById("conf-skill-2").value);
+    target.status.skill_3 = parseInt(document.getElementById("conf-skill-3").value);
+    target.status.skill_4 = parseInt(document.getElementById("conf-skill-4").value);
     
     target.status.weapon_id = document.getElementById("conf-weapon-id").value;
     target.status.weapon_level = clamp(document.getElementById("conf-weapon-level").value, 1, 90);
-    target.status.weapon_essence = clamp(document.getElementById("conf-weapon-essence").value, 1, 5);
-    target.status.weapon_potential = clamp(document.getElementById("conf-weapon-potential").value, 1, 5);
+    target.status.weapon_e1 = clamp(document.getElementById("conf-weapon-e1").value, 1, 9);
+    target.status.weapon_e2 = clamp(document.getElementById("conf-weapon-e2").value, 1, 9);
+    target.status.weapon_e3 = clamp(document.getElementById("conf-weapon-e3").value, 1, 9);
     
     const parts = ["head", "chest", "arms", "legs"];
     parts.forEach(part => {
@@ -295,18 +729,43 @@ function saveConfig() {
     const talentBoxes = document.querySelectorAll(".talent-box");
     talentBoxes.forEach((box, i) => { target.status.talents[i] = box.classList.contains("active"); });
 
-    renderCharacters(); renderSquad(); closeConfigModal();
+    const btn = document.getElementById("btn-save-config");
+    const originalText = btn.innerText;
+    btn.innerText = "SAVED ✓";
+    btn.style.backgroundColor = "#2ECC71";
+    btn.style.color = "#000";
+    setTimeout(() => {
+        btn.innerText = originalText;
+        btn.style.backgroundColor = "";
+        btn.style.color = "";
+    }, 1500);
+
+    renderRoster(); 
+    renderSquad(); 
 }
 
 function resetConfig() {
     document.getElementById("conf-level").value = 1;
+    document.getElementById("conf-char-affinity").value = 0;
+    document.getElementById("conf-char-potential").value = 0;
+
+    if (activeId !== null) {
+        let c = activeOrigin === 'list' ? characters.find(p => p.id === activeId) : squad[activeId];
+        if (c) {
+            c.status.talent_1_brk = 1;
+            c.status.talent_2_brk = 1;
+        }
+    }
+
     document.getElementById("conf-skill-1").value = 1;
     document.getElementById("conf-skill-2").value = 1;
     document.getElementById("conf-skill-3").value = 1;
-    document.getElementById("conf-weapon-id").value = "wpn_lg_01";
+    document.getElementById("conf-skill-4").value = 1;
+    document.getElementById("conf-weapon-id").value = "wpn_test_00";
     document.getElementById("conf-weapon-level").value = 1;
-    document.getElementById("conf-weapon-essence").value = 1;
-    document.getElementById("conf-weapon-potential").value = 1;
+    document.getElementById("conf-weapon-e1").value = 1;
+    document.getElementById("conf-weapon-e2").value = 1;
+    document.getElementById("conf-weapon-e3").value = 1;
     
     const parts = ["head", "chest", "arms", "legs"];
     parts.forEach(part => {
@@ -315,37 +774,58 @@ function resetConfig() {
     });
 
     document.querySelectorAll(".talent-box").forEach(b => b.classList.remove("active"));
-    updateWeaponPreview(); saveConfig();
+    updateWeaponPreview(); 
+    updateLiveStats();
 }
 
+function closeConfigModal() { document.getElementById("modal-config").style.display = "none"; }
 function openConfirmModal() { document.getElementById("modal-confirm").style.display = "flex"; }
 function closeConfirmModal() { document.getElementById("modal-confirm").style.display = "none"; }
-function closeConfigModal() { document.getElementById("modal-config").style.display = "none"; }
-
-function executeResetAll() { 
-    initDatabase(); 
-    clearSquad(); 
-    renderCharacters(); 
-    closeConfirmModal(); 
-}
+function executeResetAll() { initDatabase(); clearSquad(); renderRoster(); closeConfirmModal(); }
 
 function calcCombo() {
     const track = document.getElementById("combo-track");
     track.innerHTML = "";
     const active = squad.filter(p => p !== null);
-    if (active.length === 0) {
-        track.innerHTML = `<p class="sub-text">Deploy operators to evaluate tactical sequence.</p>`; return;
+    
+    if (active.length < 2) {
+        track.innerHTML = `<p class="sub-text">Deploy at least two operators to evaluate tactical sequence.</p>`; 
+        return;
     }
-    active.forEach((c, i) => {
-        track.innerHTML += `
+    
+    let html = "";
+    for (let i = 0; i < active.length - 1; i++) {
+        let current = active[i];
+        let next = active[i+1];
+        
+        let primaryMatch = (current.initiates !== "None" && current.initiates === next.continues);
+        let passiveMatch = (current.skills.passive && current.skills.passive.extra_initiates && current.skills.passive.extra_initiates === next.continues);
+        
+        let isMatch = primaryMatch || passiveMatch;
+        let colorStatus = isMatch ? "var(--primary-yellow)" : "var(--danger-red)";
+        let matchText = primaryMatch ? "SYNERGY LINKED (SKILL)" : (passiveMatch ? "SYNERGY LINKED (PASSIVE)" : "NO SYNERGY");
+
+        let appliesText = current.initiates;
+        if (passiveMatch && !primaryMatch) {
+            appliesText = current.skills.passive.extra_initiates;
+        } else if (current.skills.passive && current.skills.passive.extra_initiates) {
+            appliesText += ` <br><span style="color: #FFF; font-size: 10px;">or</span> ${current.skills.passive.extra_initiates}`;
+        }
+
+        html += `
             <div class="combo-node">
-                <span>Requires</span><div class="mechanic" style="color:var(--danger-red)">${c.continues}</div>
+                <span>${current.name} Applies</span>
+                <div class="mechanic">${appliesText}</div>
                 <hr style="border: 1px solid var(--border-dim); margin: 8px 0;">
-                <span>Applies</span><div class="mechanic">${c.initiates}</div>
+                <span style="color: ${colorStatus}; font-weight: bold; font-size: 10px;">${matchText}</span>
+                <hr style="border: 1px solid var(--border-dim); margin: 8px 0;">
+                <span>${next.name} Needs</span>
+                <div class="mechanic" style="color: ${colorStatus}">${next.continues}</div>
             </div>
         `;
-        if (i < active.length - 1) track.innerHTML += `<div class="combo-arrow">➞</div>`;
-    });
+        if (i < active.length - 2) html += `<div class="combo-arrow">➞</div>`;
+    }
+    track.innerHTML = html;
 }
 
 function openSynergyModal(id) {
@@ -354,12 +834,12 @@ function openSynergyModal(id) {
     const cont = document.getElementById("suggested-teams-container");
     cont.innerHTML = "";
     
-    let t1 = characters.filter(c => c.id !== p.id && (c.element === p.element || c.initiates === p.continues)).slice(0,3);
+    let t1 = characters.filter(c => c.id !== p.id && (c.continues === p.initiates || (p.skills.passive && c.continues === p.skills.passive.extra_initiates))).slice(0,3);
     t1.unshift(p);
     
-    let html = `<div class="team-card"><h3>Synergy Link Alpha</h3><div class="team-roster">`;
-    t1.forEach(c => html += `<div class="mini-slot" style="background-image: linear-gradient(to top, rgba(0,0,0,0.9), transparent), url('imagens/${c.img}');">${c.name}</div>`);
-    html += `</div><button class="btn-primary" onclick="applyTeam('${t1.map(x=>x.id).join(',')}')">Deploy</button></div>`;
+    let html = `<div class="team-card"><h3>Synergy Link Alpha (Mechanic Based)</h3><div class="team-roster">`;
+    t1.forEach(c => html += `<div class="mini-slot" style="${c.img ? `background-image: linear-gradient(to top, rgba(0,0,0,0.9), transparent), url('imagens/${c.img}');` : `background: var(--bg-dark);`}">${c.name}</div>`);
+    html += `</div><button class="btn-primary" onclick="applyTeam('${t1.map(x=>x.id).join(',')}')">Deploy Squad</button></div>`;
     
     cont.innerHTML = html;
     document.getElementById("modal-synergy").style.display = "flex";
