@@ -1,24 +1,38 @@
-## 🛠️ UI & User Experience (UX)
+# ⚡ Endfield Tactical Simulator
 
-- **Optimized Layout:** The side panel (Roster) now extends to the absolute top of the screen (100% height). The Header/Logo has been cleanly integrated into the tactical panel.
-- **Standardized Cards (Grid Fix):** Card resizing has been corrected. Cards now have fixed minimum and maximum heights, allowing long weapon and gear names to wrap naturally without breaking or stretching the 4-column grid.
-- **Smart Placeholders & Overlays:** Removed the image zoom that caused cropping. Added a dynamic placeholder (a tactical **"?"**) for items without an assigned image. Implemented an **"LV. X"** badge overlay in the corner of card images.
-- **Improved Interaction:** Removed the gear icons. The configuration modal now opens by clicking anywhere on the card's image or information area.
-- **Auto-Close UX:** The Save button now provides visual feedback with a green **"SAVED ✓"** indicator and smoothly closes the modal after 800ms.
-- **Toast Notification System:** Added temporary notification pop-ups in the bottom-right corner to warn users about invalid actions, combined with a shake animation for invalid inputs.
-- **Operator Tabs:** Prepared the configuration modal for future expansions with tabs such as **Combat Loadout**, **Artworks**, **Operator Intel**, and **Operator Files**.
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
 
-## ⚙️ Gameplay & Tactical Systems
+An advanced tactical simulator, squad builder, and damage (DPS) calculator built to optimize formations and explore combat synergies. Plan your team, adjust equipment, and maximize your tactical potential before you even step onto the battlefield.
 
-- **Gear System:** Added a dedicated Gear tab. The system now supports individual equipment pieces (Armor, Gloves, Kits) and automatically calculates set bonuses (e.g. **MI Security 3-piece**).
-- **Level Cap Validation:** Operators can no longer equip gear above their current level. Invalid attempts trigger a toast notification and shake animation while ignoring the item's stats.
-- **Dynamic Stat Engine:** Refactored `getCalculatedStats()`. The function now dynamically iterates through any stat key found in `eq.stats`, allowing new stats to be added without writing multiple `if/else` blocks.
-- **New Damage Multipliers:** Added native support for `basic_dmg_bonus` and `skill_dmg_bonus` in the global damage calculations.
-- **Squad Combat Potential:** Implemented a new panel that estimates the squad's total damage potential (DPS/Burst) based on effective ATK, element/skill multipliers, and Critical Rate/Critical Damage calculations.
-- **Anti-Spam Audio System:** Added the `playVoiceLine()` function, which plays native `.mp3` voice lines from the `/sound/` folder when inspecting an operator. Includes an `isAudioPlaying` lock to prevent overlapping playback.
+---
 
-## 🗄️ Database Architecture
+## 🚀 Key Features
 
-- **Template Expansion:** Removed loop-based object generators. All Operators and Weapons are now fully expanded as individual objects inside `script.js`, making manual editing and datamining through VSCode significantly easier.
-- **Weapon Database:** Added 36 detailed weapons, including base stats, scaling values, and fully transcribed mathematical talent functions.
-- **Image Routing:** Refactored image loading to use dedicated directories: `/images/Operators/`, `/images/Weapons/`, and `/images/Gears/`.
+* 👥 **Interactive Squad Builder:** Assemble teams of up to 4 operators using a seamless Drag & Drop system. Quickly rearrange positions within your active formation.
+* 🧮 **Dynamic Combat Engine:** The system automatically calculates the squad's **Total Theoretical DPS** by crunching data such as: Levels (1-90), Affinity (0-4), Potential (0-5), attribute scaling (*Breakpoints*), and Skill multipliers (from Rank 1 to Mastery 3).
+* ⚔️ **Synergy & Combo Simulator:** A visual tracker that analyzes *Initiates* and *Continues* mechanics (e.g., Armor Break ➔ Airborne ➔ Stagger) to validate the effectiveness of your squad's tactical sequence.
+* 🛡️ **Weapon & Equipment System:** Comprehensive database with level validation. Equip class-specific weapons and combine armor sets (Kits/Gloves) to activate Set bonuses.
+* 📖 **Massive Database & Lore:** Features **28 pre-configured Operators**, including story archives (*Operator Files*), tactical information (*Operator Intel*), and a dynamic Artwork Gallery with high-quality thumbnails.
+* 🎨 **Modern UI/UX (Sci-Fi Aesthetic):** Interface designed with *Glassmorphism*, an optimized tabbed navigation system with no global scrolling (locked at `95vh`), Pop-up notifications (Toasts), error validations, and immersive audiovisual feedback.
+
+---
+
+## 📸 Interface Preview
+
+> **Note:** *Add your project screenshots here.*
+> 
+> *[Example: Screenshot of the Roster and Squad Board]*  
+> *[Example: Screenshot of the Operator Configuration Modal]*  
+> *[Example: Screenshot of the Artworks Gallery]*
+
+---
+
+## 🛠️ How to Run the Project
+
+This project is built using **Vanilla** web technologies (HTML, CSS, and JavaScript), meaning there is no need to download package managers (`npm`), servers, or frameworks. Everything runs natively in your browser.
+
+1. Clone the repository:
+   ```bash
+   git clone [https://github.com/YourUsername/Endfield-Tactical-Simulator.git](https://github.com/YourUsername/Endfield-Tactical-Simulator.git)
