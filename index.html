@@ -304,7 +304,7 @@
 
         </div>
     </div>
-    <!-- System Settings Modal -->
+<!-- System Settings Modal -->
     <div id="modal-system-settings" class="modal">
         <div class="modal-content modal-sm glass-panel">
             <span class="close-btn" onclick="closeSystemSettings()">&times;</span>
@@ -328,6 +328,16 @@
                         <span style="font-size: 12px; color: var(--primary-yellow); font-family: monospace;" id="volume-readout">100%</span>
                     </div>
                     <input type="range" id="setting-audio-volume" min="0" max="100" value="100" class="tech-slider" oninput="changeVolume()">
+                </div>
+            </div>
+
+            <!-- NOVA SEÇÃO: Gerenciamento de Dados -->
+            <div class="data-block mt-20">
+                <h3 style="margin-bottom: 10px; color: var(--danger-red);">Data Management</h3>
+                <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 15px;">Clear all your locally saved progress, including squad formations and operator configs. This cannot be undone.</p>
+                <button class="btn-danger full-width" onclick="clearLocalSave()">Delete Save Data</button>
+            </div>
+
                 </div>
             </div>
         </div>

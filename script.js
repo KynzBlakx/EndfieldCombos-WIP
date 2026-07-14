@@ -656,159 +656,230 @@ const equipmentDB = [
     },
     
     // KITS
-    { 
-        id: "eq_mi_push_knife", 
-        name: "MI Security Push Knife", 
-        type: "Kit", 
-        set: "MI Security", 
-        rarity: "Gold", 
-        level: 70, 
-        stats: { defense: 21, intellect: 21, will: 32, heat_dmg_bonus: 0.23, nature_dmg_bonus: 0.23 }, 
-        img: "mi_kit.png" 
+    {
+        id: "eq_mi_security_overalls_t1",
+        name: "MI Security Overalls T1",
+        type: "Armor",
+        set: "MI Security",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            intellect: [87, 95, 104, 113],
+            will: [58, 63, 69, 75],
+            crit_rate: [0.052, 0.057, 0.062, 0.067]
+        },
+        img: "mi_security_overalls_t1.png"
     },
-    { 
-        id: "eq_mi_push_knife_t1", 
-        name: "MI Security Push Knife T1", 
-        type: "Kit", 
-        set: "MI Security", 
-        rarity: "Gold", 
-        level: 70, 
-        stats: { defense: 21, agility: 21, will: 32, skill_dmg_bonus: 0.414 }, 
-        img: "mi_kit.png" 
+    {
+        id: "eq_mi_security_overalls_t2",
+        name: "MI Security Overalls T2",
+        type: "Armor",
+        set: "MI Security",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            agility: [58, 63, 69, 75],
+            will: [87, 95, 104, 113],
+            skill_dmg_bonus: [0.207, 0.228, 0.248, 0.269]
+        },
+        img: "mi_security_overalls_t2.png"
     },
-    { 
-        id: "eq_mi_toolkit", 
-        name: "MI Security Toolkit", 
-        type: "Kit", 
-        set: "MI Security", 
-        rarity: "Gold", 
-        level: 70, 
-        stats: { defense: 21, agility: 21, intellect: 32, crit_rate: 0.104 }, 
-        img: "mi_kit.png" 
+    {
+        id: "eq_mi_security_overalls",
+        name: "MI Security Overalls",
+        type: "Armor",
+        set: "MI Security",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            agility: [58, 63, 69, 75],
+            intellect: [87, 95, 104, 113],
+            basic_dmg_bonus: [0.138, 0.152, 0.166, 0.179]
+        },
+        img: "mi_security_overalls.png"
     },
-    { 
-        id: "eq_mi_scope_t1", 
-        name: "MI Security Scope T1", 
-        type: "Kit", 
-        set: "MI Security", 
-        rarity: "Gold", 
-        level: 70, 
-        stats: { defense: 21, agility: 32, intellect: 21, crit_rate: 0.104 }, 
-        img: "mi_kit.png" 
+    {
+        id: "eq_mi_security_armor_t1",
+        name: "MI Security Armor T1",
+        type: "Armor",
+        set: "MI Security",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            agility: [87, 95, 104, 113],
+            intellect: [58, 63, 69, 75],
+            ult_gain_eff: [0.123, 0.136, 0.148, 0.16]
+        },
+        img: "mi_security_armor_t1.png"
     },
-    { 
-        id: "eq_mi_scope", 
-        name: "MI Security Scope", 
-        type: "Kit", 
-        set: "MI Security", 
-        rarity: "Gold", 
-        level: 70, 
-        stats: { defense: 21, strength: 21, agility: 32, skill_dmg_bonus: 0.414 }, 
-        img: "mi_kit.png" 
+    {
+        id: "eq_mi_security_armor",
+        name: "MI Security Armor",
+        type: "Armor",
+        set: "MI Security",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            strength: [58, 63, 69, 75],
+            agility: [87, 95, 104, 113],
+            arts_intensity: [20, 22, 24, 26]
+        },
+        img: "mi_security_armor.png"
     },
-    { 
-        id: "eq_mi_armband", 
-        name: "MI Security Armband", 
-        type: "Kit", 
-        set: "MI Security", 
-        rarity: "Gold", 
-        level: 70, 
-        stats: { defense: 21, strength: 32, will: 21, cryo_dmg_bonus: 0.23, elec_dmg_bonus: 0.23 }, 
-        img: "mi_kit.png" 
+    {
+        id: "eq_mi_security_hands_ppe_t1",
+        name: "MI Security Hands PPE T1",
+        type: "Gloves",
+        set: "MI Security",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [42, 42, 42, 42],
+            intellect: [65, 71, 78, 84],
+            will: [43, 47, 51, 55],
+            crit_rate: [0.086, 0.095, 0.103, 0.112]
+        },
+        img: "mi_security_hands_ppe_t1.png"
     },
-
-    // GLOVES
-    { 
-        id: "eq_mi_hands_ppe_t1", 
-        name: "MI Security Hands PPE T1", 
-        type: "Gloves", 
-        set: "MI Security", 
-        rarity: "Gold", 
-        level: 70, 
-        stats: { defense: 42, intellect: 65, will: 43, crit_rate: 0.086 }, 
-        img: "mi_gloves.png" 
+    {
+        id: "eq_mi_security_hands_ppe",
+        name: "MI Security Hands PPE",
+        type: "Gloves",
+        set: "MI Security",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [42, 42, 42, 42],
+            agility: [43, 47, 51, 55],
+            intellect: [65, 71, 78, 84],
+            basic_dmg_bonus: [0.23, 0.253, 0.276, 0.299]
+        },
+        img: "mi_security_hands_ppe.png"
     },
-    { 
-        id: "eq_mi_hands_ppe", 
-        name: "MI Security Hands PPE", 
-        type: "Gloves", 
-        set: "MI Security", 
-        rarity: "Gold", 
-        level: 70, 
-        stats: { defense: 42, agility: 43, intellect: 65, basic_dmg_bonus: 0.23 }, 
-        img: "mi_gloves.png" 
+    {
+        id: "eq_mi_security_gloves_t1",
+        name: "MI Security Gloves T1",
+        type: "Gloves",
+        set: "MI Security",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [42, 42, 42, 42],
+            agility: [65, 71, 78, 84],
+            intellect: [43, 47, 51, 55],
+            ult_dmg_bonus: [0.431, 0.474, 0.517, 0.56]
+        },
+        img: "mi_security_gloves_t1.png"
     },
-    { 
-        id: "eq_mi_gloves_t1", 
-        name: "MI Security Gloves T1", 
-        type: "Gloves", 
-        set: "MI Security", 
-        rarity: "Gold", 
-        level: 70, 
-        stats: { defense: 42, agility: 65, intellect: 43, ult_dmg_bonus: 0.431 }, 
-        img: "mi_gloves.png" 
+    {
+        id: "eq_mi_security_gloves",
+        name: "MI Security Gloves",
+        type: "Gloves",
+        set: "MI Security",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [42, 42, 42, 42],
+            strength: [43, 47, 51, 55],
+            agility: [65, 71, 78, 84],
+            skill_dmg_bonus: [0.345, 0.38, 0.414, 0.449]
+        },
+        img: "mi_security_gloves.png"
     },
-    { 
-        id: "eq_mi_gloves", 
-        name: "MI Security Gloves", 
-        type: "Gloves", 
-        set: "MI Security", 
-        rarity: "Gold", 
-        level: 70, 
-        stats: { defense: 42, strength: 43, agility: 65, skill_dmg_bonus: 0.345 }, 
-        img: "mi_gloves.png" 
+    {
+        id: "eq_mi_security_push_knife_t1",
+        name: "MI Security Push Knife T1",
+        type: "Kit",
+        set: "MI Security",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            agility: [21, 23, 25, 27],
+            will: [32, 35, 38, 41],
+            skill_dmg_bonus: [0.414, 0.455, 0.497, 0.538]
+        },
+        img: "mi_security_push_knife_t1.png"
     },
-
-    // ARMOR
-    { 
-        id: "eq_mi_overalls_t1", 
-        name: "MI Security Overalls T1", 
-        type: "Armor", 
-        set: "MI Security", 
-        rarity: "Gold", 
-        level: 70, 
-        stats: { defense: 56, intellect: 87, will: 58, crit_rate: 0.052 }, 
-        img: "mi_armor.png" 
+    {
+        id: "eq_mi_security_push_knife",
+        name: "MI Security Push Knife",
+        type: "Kit",
+        set: "MI Security",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            intellect: [21, 23, 25, 27],
+            will: [32, 35, 38, 41],
+            heat_nature_dmg_bonus: [0.23, 0.253, 0.276, 0.299]
+        },
+        img: "mi_security_push_knife.png"
     },
-    { 
-        id: "eq_mi_overalls_t2", 
-        name: "MI Security Overalls T2", 
-        type: "Armor", 
-        set: "MI Security", 
-        rarity: "Gold", 
-        level: 70, 
-        stats: { defense: 56, agility: 58, will: 87, skill_dmg_bonus: 0.207 }, 
-        img: "mi_armor.png" 
+    {
+        id: "eq_mi_security_toolkit",
+        name: "MI Security Toolkit",
+        type: "Kit",
+        set: "MI Security",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            agility: [21, 23, 25, 27],
+            intellect: [32, 35, 38, 41],
+            crit_rate: [0.104, 0.114, 0.124, 0.135]
+        },
+        img: "mi_security_toolkit.png"
     },
-    { 
-        id: "eq_mi_overalls", 
-        name: "MI Security Overalls", 
-        type: "Armor", 
-        set: "MI Security", 
-        rarity: "Gold", 
-        level: 70, 
-        stats: { defense: 56, agility: 58, intellect: 87, basic_dmg_bonus: 0.138 }, 
-        img: "mi_armor.png" 
+    {
+        id: "eq_mi_security_scope_t1",
+        name: "MI Security Scope T1",
+        type: "Kit",
+        set: "MI Security",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            agility: [32, 35, 38, 41],
+            intellect: [21, 23, 25, 27],
+            crit_rate: [0.104, 0.114, 0.124, 0.135]
+        },
+        img: "mi_security_scope_t1.png"
     },
-    { 
-        id: "eq_mi_armor", 
-        name: "MI Security Armor", 
-        type: "Armor", 
-        set: "MI Security", 
-        rarity: "Gold", 
-        level: 70, 
-        stats: { defense: 56, strength: 58, agility: 87, arts_intensity: 20 }, 
-        img: "mi_armor.png" 
+    {
+        id: "eq_mi_security_scope",
+        name: "MI Security Scope",
+        type: "Kit",
+        set: "MI Security",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            strength: [21, 23, 25, 27],
+            agility: [32, 35, 38, 41],
+            skill_dmg_bonus: [0.414, 0.455, 0.497, 0.538]
+        },
+        img: "mi_security_scope.png"
     },
-    { 
-        id: "eq_mi_armor_t1", 
-        name: "MI Security Armor T1", 
-        type: "Armor", 
-        set: "MI Security", 
-        rarity: "Gold", 
-        level: 70, 
-        stats: { defense: 56, agility: 87, intellect: 58, ult_gain_eff: 0.123 }, 
-        img: "mi_armor.png" 
+    {
+        id: "eq_mi_security_armband",
+        name: "MI Security Armband",
+        type: "Kit",
+        set: "MI Security",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            strength: [32, 35, 38, 41],
+            will: [21, 23, 25, 27],
+            cryo_elec_dmg_bonus: [0.23, 0.253, 0.276, 0.299]
+        },
+        img: "mi_security_armband.png"
     },
     {
         id: "eq_frontiers_armor",
@@ -1017,6 +1088,171 @@ const equipmentDB = [
             sec_attr_bonus: [0.207, 0.228, 0.248, 0.269]
         },
         img: "frontiers_extra_o2_tube_t1.png"
+    },
+    {
+        id: "eq_type_50_yinglung_heavy_armor_t1",
+        name: "Type 50 Yinglung Heavy Armor T1",
+        type: "Armor",
+        set: "Type 50 Yinglung",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            agility: [87, 95, 104, 113],
+            strength: [58, 63, 69, 75],
+            ult_gain_eff: [0.123, 0.136, 0.148, 0.16]
+        },
+        img: "type_50_yinglung_heavy_armor_t1.png"
+    },
+    {
+        id: "eq_type_50_yinglung_heavy_armor_t2",
+        name: "Type 50 Yinglung Heavy Armor T2",
+        type: "Armor",
+        set: "Type 50 Yinglung",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            agility: [87, 95, 104, 113],
+            intellect: [58, 63, 69, 75],
+            combo_dmg_bonus: [0.207, 0.228, 0.248, 0.269]
+        },
+        img: "type_50_yinglung_heavy_armor_t2.png"
+    },
+    {
+        id: "eq_type_50_yinglung_heavy_armor",
+        name: "Type 50 Yinglung Heavy Armor",
+        type: "Armor",
+        set: "Type 50 Yinglung",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            strength: [87, 95, 104, 113],
+            will: [58, 63, 69, 75],
+            phys_dmg_bonus: [0.115, 0.127, 0.138, 0.149]
+        },
+        img: "type_50_yinglung_heavy_armor.png"
+    },
+    {
+        id: "eq_type_50_yinglung_light_armor",
+        name: "Type 50 Yinglung Light Armor",
+        type: "Armor",
+        set: "Type 50 Yinglung",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            will: [87, 95, 104, 113],
+            strength: [58, 63, 69, 75],
+            all_skill_dmg_bonus: [0.138, 0.152, 0.166, 0.179]
+        },
+        img: "type_50_yinglung_light_armor.png"
+    },
+    {
+        id: "eq_type_50_yinglung_gloves_t1",
+        name: "Type 50 Yinglung Gloves T1",
+        type: "Gloves",
+        set: "Type 50 Yinglung",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [42, 42, 42, 42],
+            will: [65, 71, 78, 84],
+            agility: [43, 47, 51, 55],
+            combo_dmg_bonus: [0.345, 0.38, 0.414, 0.449]
+        },
+        img: "type_50_yinglung_gloves_t1.png"
+    },
+    {
+        id: "eq_type_50_yinglung_gloves",
+        name: "Type 50 Yinglung Gloves",
+        type: "Gloves",
+        set: "Type 50 Yinglung",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [42, 42, 42, 42],
+            agility: [65, 71, 78, 84],
+            intellect: [43, 47, 51, 55],
+            combo_dmg_bonus: [0.345, 0.38, 0.414, 0.449]
+        },
+        img: "type_50_yinglung_gloves.png"
+    },
+    {
+        id: "eq_type_50_yinglung_radar_t2",
+        name: "Type 50 Yinglung Radar T2",
+        type: "Kit",
+        set: "Type 50 Yinglung",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            agility: [32, 35, 38, 41],
+            intellect: [21, 23, 25, 27],
+            combo_dmg_bonus: [0.414, 0.455, 0.497, 0.538]
+        },
+        img: "type_50_yinglung_radar_t2.png"
+    },
+    {
+        id: "eq_type_50_yinglung_radar",
+        name: "Type 50 Yinglung Radar",
+        type: "Kit",
+        set: "Type 50 Yinglung",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            strength: [32, 35, 38, 41],
+            will: [21, 23, 25, 27],
+            phys_dmg_bonus: [0.23, 0.253, 0.276, 0.299]
+        },
+        img: "type_50_yinglung_radar.png"
+    },
+    {
+        id: "eq_type_50_yinglung_radar_t1",
+        name: "Type 50 Yinglung Radar T1",
+        type: "Kit",
+        set: "Type 50 Yinglung",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            agility: [32, 35, 38, 41],
+            strength: [21, 23, 25, 27],
+            ult_dmg_bonus: [0.517, 0.569, 0.621, 0.673]
+        },
+        img: "type_50_yinglung_radar_t1.png"
+    },
+    {
+        id: "eq_type_50_yinglung_knife",
+        name: "Type 50 Yinglung Knife",
+        type: "Kit",
+        set: "Type 50 Yinglung",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            will: [32, 35, 38, 41],
+            agility: [21, 23, 25, 27],
+            combo_dmg_bonus: [0.414, 0.455, 0.497, 0.538]
+        },
+        img: "type_50_yinglung_knife.png"
+    },
+    {
+        id: "eq_type_50_yinglung_knife_t1",
+        name: "Type 50 Yinglung Knife T1",
+        type: "Kit",
+        set: "Type 50 Yinglung",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            intellect: [32, 35, 38, 41],
+            strength: [21, 23, 25, 27],
+            all_skill_dmg_bonus: [0.276, 0.304, 0.331, 0.359]
+        },
+        img: "type_50_yinglung_knife_t1.png"
     }
 ];
 
@@ -1030,6 +1266,11 @@ const equipmentSetsDB = {
         req: 3,
         desc: "3-piece set effect: Wearer's Combo Skill Cooldown Reduction +15%. After the wearer's skill recovers SP, the team gains DMG +16% for 15s. This effect cannot stack.",
         mult: { combo_cd_red: 0.15, all_skill_dmg_bonus: 0.16 }
+    },
+    "Type 50 Yinglung": {
+        req: 3,
+        desc: "3-piece set effect: Wearer's ATK +15%. When any operator in the team casts a battle skill, the wearer gains 1 stack of Yinglung's Edge that gives DMG +20% to the wearer's next combo skill. Yinglung's Edge can stack 3 time(s).",
+        mult: { atk_percent: 0.15, combo_dmg_bonus: 0.60 }
     }
 };
 
@@ -2168,6 +2409,9 @@ function initDatabase() {
     weaponsDB.forEach(w => {
         if(!w.status) w.status = { level: 1, e1: 1, e2: 1, e3: 1 };
     });
+
+    // CARREGA OS DADOS SALVOS DO NAVEGADOR
+    loadFromLocalStorage();
 }
 initDatabase();
 
@@ -2273,7 +2517,7 @@ function renderRoster() {
             if (g.id !== 'none' && g.name.toLowerCase().includes(search)) {
                 grid.innerHTML += `
                     <div class="char-card" onclick="openGearModal('${g.id}')">
-                        <div class="wpn-img" style="${g.img ? `background-image: url('imagens/Gears/${g.img}');` : ''}">
+                        <div class="wpn-img" style="${g.img ? `background-image: url('imagens/Gears/${g.set === "None" ? "no_set_bonuses" : g.set.toLowerCase().replace(/ /g, '_')}/${g.img}');` : ''}">
                             ${!g.img ? '<span style="color: var(--border-dim); font-size: 40px; font-weight: bold;">?</span>' : ''}
                             <div class="lvl-overlay">LV. ${g.level || 1}</div>
                         </div>
@@ -2635,7 +2879,8 @@ function updateLiveStatsAndDOM() {
                 showToast(`Cannot equip ${eq.name}. Requires Operator Level ${eq.level}.`);
             } else {
                 if (eq.img) {
-                    eqObj.icon.style.backgroundImage = `url('imagens/Gears/${eq.img}')`;
+                    let folderName = eq.set === "None" ? "no_set_bonuses" : eq.set.toLowerCase().replace(/ /g, '_');
+                    eqObj.icon.style.backgroundImage = `url('imagens/Gears/${folderName}/${eq.img}')`;
                 } else {
                     eqObj.icon.style.backgroundImage = "none";
                 }
@@ -2779,7 +3024,8 @@ function openGearModal(gearId) {
 
     const imgDiv = document.getElementById("gear-modal-img");
     if(g.img) {
-        imgDiv.style.backgroundImage = `url('imagens/Gears/${g.img}')`;
+        let folderName = g.set === "None" ? "no_set_bonuses" : g.set.toLowerCase().replace(/ /g, '_');
+        imgDiv.style.backgroundImage = `url('imagens/Gears/${folderName}/${g.img}')`;
         imgDiv.innerHTML = "";
     } else {
         imgDiv.style.backgroundImage = "none";
@@ -3118,3 +3364,79 @@ function applyTeam(idList) {
 window.onclick = function(e) {
     if (e.target.classList.contains('modal')) e.target.style.display = "none";
 };
+// ---------------- SAVE SYSTEM (LOCAL STORAGE) ---------------- //
+function saveToLocalStorage() {
+    // Cria um "pacote" com as configurações de áudio, esquadrão, status dos personagens e armas
+    const saveData = {
+        sysSettings: sysSettings,
+        squadIds: squad.map(c => c ? c.id : null),
+        charsStatus: characters.map(c => ({ id: c.id, status: c.status })),
+        wpnStatus: weaponsDB.map(w => ({ id: w.id, status: w.status }))
+    };
+    
+    // Converte para texto e salva no navegador do usuário
+    localStorage.setItem('endfield_tactical_save', JSON.stringify(saveData));
+}
+
+function loadFromLocalStorage() {
+    // Tenta buscar o arquivo salvo no navegador
+    const savedString = localStorage.getItem('endfield_tactical_save');
+    if (!savedString) return false; // Se for a primeira vez da pessoa no site, para por aqui
+
+    try {
+        const saveData = JSON.parse(savedString);
+        
+        // Restaura Configurações de Áudio
+        if (saveData.sysSettings) {
+            sysSettings = saveData.sysSettings;
+            const toggle = document.getElementById("setting-audio-toggle");
+            const slider = document.getElementById("setting-audio-volume");
+            const readout = document.getElementById("volume-readout");
+            
+            if (toggle) toggle.checked = sysSettings.audioEnabled;
+            if (slider) slider.value = sysSettings.volume * 100;
+            if (readout) readout.innerText = (sysSettings.volume * 100) + "%";
+        }
+        
+        // Restaura Status dos Operadores
+        if (saveData.charsStatus) {
+            saveData.charsStatus.forEach(savedChar => {
+                let c = characters.find(x => x.id === savedChar.id);
+                if (c) c.status = savedChar.status;
+            });
+        }
+        
+        // Restaura Níveis das Armas
+        if (saveData.wpnStatus) {
+            saveData.wpnStatus.forEach(savedWpn => {
+                let w = weaponsDB.find(x => x.id === savedWpn.id);
+                if (w) w.status = savedWpn.status;
+            });
+        }
+
+        // Restaura o Esquadrão Ativo
+        if (saveData.squadIds) {
+            squad = saveData.squadIds.map(id => id ? characters.find(c => c.id === id) || null : null);
+        }
+        
+        return true;
+    } catch (e) {
+        console.error("Save file corrupted or outdated.", e);
+        return false;
+    }
+}
+
+function clearLocalSave() {
+    // Adiciona uma confirmação de segurança nativa do navegador
+    if(confirm("Are you sure you want to delete your save data? This will clear your current session and cannot be undone.")) {
+        localStorage.removeItem('endfield_tactical_save'); // Apaga o arquivo
+        
+        // Zera o estado atual da tela
+        initDatabase();
+        clearSquad();
+        renderRoster();
+        
+        closeSystemSettings();
+        showToast("Local save data cleared successfully!");
+    }
+}
