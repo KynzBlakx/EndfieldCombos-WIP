@@ -96,7 +96,23 @@ body {
 .tactical-panel { flex: 1; display: flex; flex-direction: column; padding: 0; overflow-y: auto; background: transparent; }
 
 /* Absolute top header */
-.header-nav { padding: 15px 30px; width: 100%; box-sizing: border-box; text-align: left; border-bottom: 1px solid var(--border-dim); border-radius: 0; }
+/* Cabeçalho superior com layout flexível para alinhar os itens nas extremidades */
+.header-nav { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    padding: 15px 30px; 
+    width: 100%; 
+    box-sizing: border-box; 
+    text-align: left; 
+    border-bottom: 1px solid var(--border-dim); 
+    border-radius: 0; 
+}
+
+/* Remove a margem padrão do h1 para ficar perfeitamente alinhado ao centro com o botão */
+.header-nav h1 {
+    margin: 0;
+}
 .tactical-content { padding: 30px; display: flex; flex-direction: column; flex: 1; gap: 20px; }
 
 .squad-board { padding: 25px; border-radius: 8px; }
@@ -224,3 +240,44 @@ body {
 
 .shake-error { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color: var(--danger-red) !important; color: var(--danger-red) !important; box-shadow: 0 0 10px rgba(232, 76, 76, 0.3); }
 @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+
+/* SYSTEM SETTINGS & AUDIO SLIDER STYLES */
+.tech-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.6);
+    outline: none;
+    border-radius: 3px;
+    border: 1px solid var(--border-dim);
+}
+
+.tech-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--primary-yellow);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(230, 200, 67, 0.5);
+}
+
+.tech-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--primary-yellow);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(230, 200, 67, 0.5);
+    border: none;
+}
+
+/* TOGGLE SWITCH ANIMATION FIX */
+input:checked + .slider {
+    background-color: #2ECC71 !important;
+}
+input:checked ~ .slider-knob {
+    transform: translateX(20px);
+}

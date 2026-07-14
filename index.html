@@ -50,6 +50,8 @@
                 <div class="logo-area">
                     <h1>ENDFIELD <span>TACTICAL SYS</span></h1>
                 </div>
+                <!-- Configuration Button -->
+                <button class="btn-ghost" style="padding: 6px 12px; font-size: 16px; flex: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;" onclick="openSystemSettings()">⚙</button>
             </header>
 
             <div class="tactical-content">
@@ -206,21 +208,37 @@
                         <div class="data-block mt-10">
                             <h3>Factory Equipment</h3>
                             <div class="gear-grid">
+                                <!-- ARMOR -->
                                 <div class="gear-item">
                                     <div class="gear-mini-icon" id="icon-equip-armor"></div>
-                                    <div style="flex:1;"><label>ARMOR</label><select id="conf-equip-armor" class="tech-input full-width" onchange="updateLiveStatsAndDOM()"></select></div>
+                                    <div style="flex: 2;"><label>ARMOR</label><select id="conf-equip-armor" class="tech-input full-width" onchange="updateLiveStatsAndDOM()"></select></div>
+                                    <div style="flex: 1;"><label>LVL</label><select id="conf-equip-armor-lvl" class="tech-input full-width text-center" onchange="updateLiveStatsAndDOM()">
+                                        <option value="0">+0</option><option value="1">+1</option><option value="2">+2</option><option value="3">+3</option>
+                                    </select></div>
                                 </div>
+                                <!-- GLOVES -->
                                 <div class="gear-item">
                                     <div class="gear-mini-icon" id="icon-equip-gloves"></div>
-                                    <div style="flex:1;"><label>GLOVES</label><select id="conf-equip-gloves" class="tech-input full-width" onchange="updateLiveStatsAndDOM()"></select></div>
+                                    <div style="flex: 2;"><label>GLOVES</label><select id="conf-equip-gloves" class="tech-input full-width" onchange="updateLiveStatsAndDOM()"></select></div>
+                                    <div style="flex: 1;"><label>LVL</label><select id="conf-equip-gloves-lvl" class="tech-input full-width text-center" onchange="updateLiveStatsAndDOM()">
+                                        <option value="0">+0</option><option value="1">+1</option><option value="2">+2</option><option value="3">+3</option>
+                                    </select></div>
                                 </div>
+                                <!-- KIT 1 -->
                                 <div class="gear-item">
                                     <div class="gear-mini-icon" id="icon-equip-kit1"></div>
-                                    <div style="flex:1;"><label>KIT 1</label><select id="conf-equip-kit1" class="tech-input full-width" onchange="updateLiveStatsAndDOM()"></select></div>
+                                    <div style="flex: 2;"><label>KIT 1</label><select id="conf-equip-kit1" class="tech-input full-width" onchange="updateLiveStatsAndDOM()"></select></div>
+                                    <div style="flex: 1;"><label>LVL</label><select id="conf-equip-kit1-lvl" class="tech-input full-width text-center" onchange="updateLiveStatsAndDOM()">
+                                        <option value="0">+0</option><option value="1">+1</option><option value="2">+2</option><option value="3">+3</option>
+                                    </select></div>
                                 </div>
+                                <!-- KIT 2 -->
                                 <div class="gear-item">
                                     <div class="gear-mini-icon" id="icon-equip-kit2"></div>
-                                    <div style="flex:1;"><label>KIT 2</label><select id="conf-equip-kit2" class="tech-input full-width" onchange="updateLiveStatsAndDOM()"></select></div>
+                                    <div style="flex: 2;"><label>KIT 2</label><select id="conf-equip-kit2" class="tech-input full-width" onchange="updateLiveStatsAndDOM()"></select></div>
+                                    <div style="flex: 1;"><label>LVL</label><select id="conf-equip-kit2-lvl" class="tech-input full-width text-center" onchange="updateLiveStatsAndDOM()">
+                                        <option value="0">+0</option><option value="1">+1</option><option value="2">+2</option><option value="3">+3</option>
+                                    </select></div>
                                 </div>
                             </div>
                         </div>
@@ -286,7 +304,34 @@
 
         </div>
     </div>
+    <!-- System Settings Modal -->
+    <div id="modal-system-settings" class="modal">
+        <div class="modal-content modal-sm glass-panel">
+            <span class="close-btn" onclick="closeSystemSettings()">&times;</span>
+            <h2 style="color: var(--primary-yellow); text-transform: uppercase; margin-bottom: 20px; font-size: 16px;">System Settings</h2>
+            
+            <div class="data-block">
+                <h3 style="margin-bottom: 15px;">Audio Configuration</h3>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <span style="font-size: 12px; font-weight: bold; color: #FFF;">Enable Operator Voice Lines</span>
+                    <label class="switch" style="position: relative; display: inline-block; width: 40px; height: 20px;">
+                        <input type="checkbox" id="setting-audio-toggle" checked onchange="toggleAudioSystem()" style="opacity: 0; width: 0; height: 0;">
+                        <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--danger-red); transition: .4s; border-radius: 20px;"></span>
+                        <span class="slider-knob" style="position: absolute; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+                    </label>
+                </div>
 
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="font-size: 12px; color: var(--text-dim);">Voice Volume</span>
+                        <span style="font-size: 12px; color: var(--primary-yellow); font-family: monospace;" id="volume-readout">100%</span>
+                    </div>
+                    <input type="range" id="setting-audio-volume" min="0" max="100" value="100" class="tech-slider" oninput="changeVolume()">
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>

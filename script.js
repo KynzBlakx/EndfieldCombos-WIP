@@ -4,18 +4,64 @@ let activeId = null;
 let currentTab = 'operators'; 
 let currentWeaponModalId = null;
 
-// ---------------- SOUND SYSTEM ---------------- //
+// ---------------- SOUND SYSTEM & SETTINGS ---------------- //
 let isAudioPlaying = false;
+let currentAudioElement = null; // Guardar a referência do áudio atual para poder alterar o volume em tempo real
+
+// Default Settings
+let sysSettings = {
+    audioEnabled: true,
+    volume: 1.0 // 0.0 to 1.0
+};
 
 function playVoiceLine(audioFileName) {
-    if (!audioFileName || isAudioPlaying) return;
-    const audio = new Audio(`sound/${audioFileName}`);
+    if (!sysSettings.audioEnabled || !audioFileName || isAudioPlaying) return;
+    
+    currentAudioElement = new Audio(`sound/${audioFileName}`);
+    currentAudioElement.volume = sysSettings.volume;
+    
     isAudioPlaying = true;
-    audio.play().catch(err => {
+    currentAudioElement.play().catch(err => {
         console.warn("Audio playback prevented by browser policy or missing file:", err);
         isAudioPlaying = false;
     });
-    audio.onended = () => { isAudioPlaying = false; };
+    
+    currentAudioElement.onended = () => { 
+        isAudioPlaying = false; 
+        currentAudioElement = null; 
+    };
+}
+
+// System Settings Modals & Controls
+function openSystemSettings() {
+    document.getElementById("modal-system-settings").style.display = "flex";
+}
+
+function closeSystemSettings() {
+    document.getElementById("modal-system-settings").style.display = "none";
+}
+
+function toggleAudioSystem() {
+    const isChecked = document.getElementById("setting-audio-toggle").checked;
+    sysSettings.audioEnabled = isChecked;
+    
+    if (!isChecked && currentAudioElement) {
+        currentAudioElement.pause();
+        isAudioPlaying = false;
+    }
+}
+
+function changeVolume() {
+    const volInput = document.getElementById("setting-audio-volume").value;
+    document.getElementById("volume-readout").innerText = volInput + "%";
+    
+    // Converter de 0-100 para 0.0 - 1.0
+    sysSettings.volume = volInput / 100;
+    
+    // Alterar o volume de um áudio que já está tocando em tempo real
+    if (currentAudioElement) {
+        currentAudioElement.volume = sysSettings.volume;
+    }
 }
 
 // ---------------- UTILITIES ---------------- //
@@ -30,7 +76,9 @@ function formatStat(key, value) {
         'crit_rate', 'crit_dmg', 'phys_res', 'arts_res', 'heat_res', 'elec_res', 'cryo_res', 'nature_res', 
         'aether_res', 'treat_bonus', 'treat_rec_bonus', 'combo_cd_red', 'ult_gain_eff', 'stagger_eff', 
         'phys_dmg_bonus', 'heat_dmg_bonus', 'elec_dmg_bonus', 'cryo_dmg_bonus', 'nature_dmg_bonus', 
-        'ult_dmg_bonus', 'basic_dmg_bonus', 'skill_dmg_bonus'
+        'arts_dmg_bonus', 'cryo_elec_dmg_bonus', 'heat_nature_dmg_bonus', 'basic_dmg_bonus', 'skill_dmg_bonus', 
+        'combo_dmg_bonus', 'ult_dmg_bonus', 'all_skill_dmg_bonus', 'dmg_vs_staggered', 'final_dmg_reduction',
+        'sec_attr_bonus', 'main_attr_bonus'
     ];
     if (percentKeys.includes(key)) {
         return Number((value * 100).toFixed(1)) + "%";
@@ -761,6 +809,214 @@ const equipmentDB = [
         level: 70, 
         stats: { defense: 56, agility: 87, intellect: 58, ult_gain_eff: 0.123 }, 
         img: "mi_armor.png" 
+    },
+    {
+        id: "eq_frontiers_armor",
+        name: "Frontiers Armor",
+        type: "Armor",
+        set: "Frontiers",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            strength: [87, 95, 104, 113],
+            intellect: [58, 63, 69, 75],
+            ult_dmg_bonus: [0.259, 0.285, 0.311, 0.336]
+        },
+        img: "frontiers_armor.png"
+    },
+    {
+        id: "eq_frontiers_armor_t1",
+        name: "Frontiers Armor T1",
+        type: "Armor",
+        set: "Frontiers",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            strength: [87, 95, 104, 113],
+            agility: [58, 63, 69, 75],
+            skill_dmg_bonus: [0.207, 0.228, 0.248, 0.269]
+        },
+        img: "frontiers_armor_t1.png"
+    },
+    {
+        id: "eq_frontiers_armor_t2",
+        name: "Frontiers Armor T2",
+        type: "Armor",
+        set: "Frontiers",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            agility: [87, 95, 104, 113],
+            intellect: [58, 63, 69, 75],
+            skill_dmg_bonus: [0.207, 0.228, 0.248, 0.269]
+        },
+        img: "frontiers_armor_t2.png"
+    },
+    {
+        id: "eq_frontiers_armor_t3",
+        name: "Frontiers Armor T3",
+        type: "Armor",
+        set: "Frontiers",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            agility: [87, 95, 104, 113],
+            intellect: [58, 63, 69, 75],
+            sec_attr_bonus: [0.104, 0.114, 0.124, 0.135]
+        },
+        img: "frontiers_armor_t3.png"
+    },
+    {
+        id: "eq_frontiers_protection_suit",
+        name: "Frontiers Protection Suit",
+        type: "Armor",
+        set: "Frontiers",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            intellect: [87, 95, 104, 113],
+            agility: [58, 63, 69, 75],
+            ult_gain_eff: [0.123, 0.136, 0.148, 0.16]
+        },
+        img: "frontiers_protection_suit.png"
+    },
+    {
+        id: "eq_frontiers_fiber_gloves",
+        name: "Frontiers Fiber Gloves",
+        type: "Gloves",
+        set: "Frontiers",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [42, 42, 42, 42],
+            will: [65, 71, 78, 84],
+            strength: [43, 47, 51, 55],
+            all_skill_dmg_bonus: [0.23, 0.253, 0.276, 0.299]
+        },
+        img: "frontiers_fiber_gloves.png"
+    },
+    {
+        id: "eq_frontiers_blight_res_gloves",
+        name: "Frontiers Blight RES Gloves",
+        type: "Gloves",
+        set: "Frontiers",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [42, 42, 42, 42],
+            agility: [65, 71, 78, 84],
+            intellect: [43, 47, 51, 55],
+            skill_dmg_bonus: [0.345, 0.38, 0.414, 0.449]
+        },
+        img: "frontiers_blight_res_gloves.png"
+    },
+    {
+        id: "eq_frontiers_fiber_gloves_t1",
+        name: "Frontiers Fiber Gloves T1",
+        type: "Gloves",
+        set: "Frontiers",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [42, 42, 42, 42],
+            intellect: [65, 71, 78, 84],
+            agility: [43, 47, 51, 55],
+            ult_gain_eff: [0.205, 0.226, 0.246, 0.267]
+        },
+        img: "frontiers_fiber_gloves_t1.png"
+    },
+    {
+        id: "eq_frontiers_comm",
+        name: "Frontiers Comm",
+        type: "Kit",
+        set: "Frontiers",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            strength: [32, 35, 38, 41],
+            agility: [21, 23, 25, 27],
+            combo_dmg_bonus: [0.414, 0.455, 0.497, 0.538]
+        },
+        img: "frontiers_comm.png"
+    },
+    {
+        id: "eq_frontiers_comm_t1",
+        name: "Frontiers Comm T1",
+        type: "Kit",
+        set: "Frontiers",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            strength: [32, 35, 38, 41],
+            intellect: [21, 23, 25, 27],
+            cryo_elec_dmg_bonus: [0.23, 0.253, 0.276, 0.299]
+        },
+        img: "frontiers_comm_t1.png"
+    },
+    {
+        id: "eq_frontiers_analyzer",
+        name: "Frontiers Analyzer",
+        type: "Kit",
+        set: "Frontiers",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            strength: [41, 45, 49, 53],
+            ult_dmg_bonus: [0.517, 0.569, 0.621, 0.673]
+        },
+        img: "frontiers_analyzer.png"
+    },
+    {
+        id: "eq_frontiers_extra_o2_tube",
+        name: "Frontiers Extra O2 Tube",
+        type: "Kit",
+        set: "Frontiers",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            agility: [32, 35, 38, 41],
+            intellect: [21, 23, 25, 27],
+            sec_attr_bonus: [0.207, 0.228, 0.248, 0.269]
+        },
+        img: "frontiers_extra_o2_tube.png"
+    },
+    {
+        id: "eq_frontiers_o2_tube",
+        name: "Frontiers O2 Tube",
+        type: "Kit",
+        set: "Frontiers",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            will: [41, 45, 49, 53],
+            phys_dmg_bonus: [0.23, 0.253, 0.276, 0.299]
+        },
+        img: "frontiers_o2_tube.png"
+    },
+    {
+        id: "eq_frontiers_extra_o2_tube_t1",
+        name: "Frontiers Extra O2 Tube T1",
+        type: "Kit",
+        set: "Frontiers",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            intellect: [32, 35, 38, 41],
+            agility: [21, 23, 25, 27],
+            sec_attr_bonus: [0.207, 0.228, 0.248, 0.269]
+        },
+        img: "frontiers_extra_o2_tube_t1.png"
     }
 ];
 
@@ -769,30 +1025,59 @@ const equipmentSetsDB = {
         req: 3,
         desc: "Wearer's Critical Rate +5%. After the wearer scores a critical hit, the wearer gains ATK +5% for 5s. This effect can reach 5 stacks. At max stacks, grant an additional Critical Rate +5%. This effect cannot stack.",
         mult: { crit_rate: 0.10, atk_percent: 0.25 }
+    },
+    "Frontiers": {
+        req: 3,
+        desc: "3-piece set effect: Wearer's Combo Skill Cooldown Reduction +15%. After the wearer's skill recovers SP, the team gains DMG +16% for 15s. This effect cannot stack.",
+        mult: { combo_cd_red: 0.15, all_skill_dmg_bonus: 0.16 }
     }
 };
 
 const advancedStatsKeys = [
-    { key: "hp", name: "HP" }, { key: "attack", name: "Attack" }, { key: "defense", name: "Defense" },
-    { key: "crit_rate", name: "Critical Rate" }, { key: "crit_dmg", name: "Critical DMG" },
-    { key: "arts_intensity", name: "Arts Intensity" }, { key: "phys_res", name: "Physical Resistance" },
-    { key: "arts_res", name: "Arts Resistance" }, { key: "heat_res", name: "Heat Resistance" }, 
-    { key: "elec_res", name: "Electric Resistance" }, { key: "cryo_res", name: "Cryo Resistance" }, 
-    { key: "nature_res", name: "Nature Resistance" }, { key: "aether_res", name: "Aether Resistance" }, 
-    { key: "treat_bonus", name: "Treatment Bonus" }, { key: "treat_rec_bonus", name: "Heal Received" }, 
-    { key: "combo_cd_red", name: "Combo Skill CD Reduction" }, { key: "ult_gain_eff", name: "Ultimate Gain Efficiency" }, 
-    { key: "stagger_eff", name: "Stagger Efficiency Bonus" }, { key: "phys_dmg_bonus", name: "Physical DMG Bonus" }, 
-    { key: "heat_dmg_bonus", name: "Heat DMG Bonus" }, { key: "elec_dmg_bonus", name: "Electric DMG Bonus" }, 
-    { key: "cryo_dmg_bonus", name: "Cryo DMG Bonus" }, { key: "nature_dmg_bonus", name: "Nature DMG Bonus" }, 
-    { key: "basic_dmg_bonus", name: "Basic Attack DMG Bonus" }, { key: "skill_dmg_bonus", name: "Skill DMG Bonus" },
-    { key: "ult_dmg_bonus", name: "Ultimate DMG Bonus" }
+    { key: "hp", name: "HP" }, 
+    { key: "attack", name: "Attack" }, 
+    { key: "defense", name: "Defense" },
+    { key: "crit_rate", name: "Critical Rate" }, 
+    { key: "crit_dmg", name: "Critical DMG" },
+    { key: "arts_intensity", name: "Arts Intensity" }, 
+    { key: "phys_res", name: "Physical Resistance" },
+    { key: "arts_res", name: "Arts Resistance" }, 
+    { key: "heat_res", name: "Heat Resistance" }, 
+    { key: "elec_res", name: "Electric Resistance" }, 
+    { key: "cryo_res", name: "Cryo Resistance" }, 
+    { key: "nature_res", name: "Nature Resistance" }, 
+    { key: "aether_res", name: "Aether Resistance" }, 
+    { key: "treat_bonus", name: "Treatment Bonus" }, 
+    { key: "treat_rec_bonus", name: "Heal Received" }, 
+    { key: "combo_cd_red", name: "Combo Skill CD Reduction" }, 
+    { key: "ult_gain_eff", name: "Ultimate Gain Efficiency" }, 
+    { key: "stagger_eff", name: "Stagger Efficiency Bonus" }, 
+    { key: "phys_dmg_bonus", name: "Physical DMG Bonus" }, 
+    { key: "heat_dmg_bonus", name: "Heat DMG Bonus" }, 
+    { key: "elec_dmg_bonus", name: "Electric DMG Bonus" }, 
+    { key: "cryo_dmg_bonus", name: "Cryo DMG Bonus" }, 
+    { key: "nature_dmg_bonus", name: "Nature DMG Bonus" }, 
+    { key: "arts_dmg_bonus", name: "Arts DMG Dealt Bonus" },
+    { key: "cryo_elec_dmg_bonus", name: "Cryo/Elec DMG Bonus" },
+    { key: "heat_nature_dmg_bonus", name: "Heat/Nature DMG Bonus" },
+    { key: "basic_dmg_bonus", name: "Basic Attack DMG Bonus" }, 
+    { key: "skill_dmg_bonus", name: "Battle Skill DMG Bonus" },
+    { key: "combo_dmg_bonus", name: "Combo Skill DMG Bonus" },
+    { key: "all_skill_dmg_bonus", name: "All Skill DMG Bonus" },
+    { key: "ult_dmg_bonus", name: "Ultimate DMG Bonus" },
+    { key: "dmg_vs_staggered", name: "DMG Bonus vs. Staggered" },
+    { key: "final_dmg_reduction", name: "Final DMG Reduction" },
+    { key: "sec_attr_bonus", name: "Secondary Attribute Bonus" },
+    { key: "main_attr_bonus", name: "Main Attribute Bonus" }
 ];
 
 const universalBaseStatsTemplate = {
     crit_rate: 0.05, crit_dmg: 0.50, arts_intensity: 0, phys_res: 0, arts_res: 0, heat_res: 0, elec_res: 0, 
     cryo_res: 0, nature_res: 0, aether_res: 0, treat_bonus: 0, treat_rec_bonus: 0, combo_cd_red: 0, 
     ult_gain_eff: 1.0, stagger_eff: 0, phys_dmg_bonus: 0, heat_dmg_bonus: 0, elec_dmg_bonus: 0, 
-    cryo_dmg_bonus: 0, nature_dmg_bonus: 0, basic_dmg_bonus: 0, skill_dmg_bonus: 0, ult_dmg_bonus: 0
+    cryo_dmg_bonus: 0, nature_dmg_bonus: 0, basic_dmg_bonus: 0, skill_dmg_bonus: 0, ult_dmg_bonus: 0,
+    arts_dmg_bonus: 0, cryo_elec_dmg_bonus: 0, heat_nature_dmg_bonus: 0, combo_dmg_bonus: 0, 
+    all_skill_dmg_bonus: 0, dmg_vs_staggered: 0, final_dmg_reduction: 0, sec_attr_bonus: 0, main_attr_bonus: 0
 };
 
 // ---------------- CHARACTER DATABASE (Expanded Layout) ---------------- //
@@ -1870,7 +2155,12 @@ function initDatabase() {
             talent_1_brk: 1, talent_2_brk: 1, 
             skill_1: 1, skill_2: 1, skill_3: 1, skill_4: 1,
             weapon_id: "wpn_test_00", weapon_level: 1, weapon_e1: 1, weapon_e2: 1, weapon_e3: 1,
-            equipment: { armor: "none", gloves: "none", kit1: "none", kit2: "none" },
+            equipment: { 
+                armor: "none", armor_lvl: 0, 
+                gloves: "none", gloves_lvl: 0, 
+                kit1: "none", kit1_lvl: 0, 
+                kit2: "none", kit2_lvl: 0 
+            },
             stats: {}
         };
     });
@@ -2222,18 +2512,24 @@ function getCalculatedStats(c) {
     if (potBonus.crit_rate) stats.crit_rate += potBonus.crit_rate;
     if (potBonus.crit_dmg) stats.crit_dmg += potBonus.crit_dmg;
 
-    let eqSetCount = {};
+let eqSetCount = {};
     if (c.status.equipment) {
-        Object.values(c.status.equipment).forEach(eqId => {
+        const parts = ["armor", "gloves", "kit1", "kit2"];
+        parts.forEach(part => {
+            let eqId = c.status.equipment[part];
+            let eqLvl = parseInt(c.status.equipment[`${part}_lvl`]) || 0; 
             let eq = equipmentDB.find(x => x.id === eqId);
+            
             if (eq && eq.id !== 'none' && lvl >= eq.level) {
                 for (let sKey in eq.stats) {
+                    let statVal = Array.isArray(eq.stats[sKey]) ? eq.stats[sKey][eqLvl] : eq.stats[sKey];
+                    
                     if (['strength', 'agility', 'intellect', 'will'].includes(sKey)) {
-                        attr[sKey] += eq.stats[sKey];
+                        attr[sKey] += statVal;
                     } else if (stats[sKey] !== undefined) {
-                        stats[sKey] += eq.stats[sKey];
+                        stats[sKey] += statVal;
                     } else {
-                        stats[sKey] = eq.stats[sKey];
+                        stats[sKey] = statVal;
                     }
                 }
                 eqSetCount[eq.set] = (eqSetCount[eq.set] || 0) + 1;
@@ -2359,9 +2655,13 @@ function updateLiveStatsAndDOM() {
     c.status.weapon_e3 = clamp(document.getElementById("conf-weapon-e3").value, 1, 9) || 1;
     
     c.status.equipment.armor = document.getElementById("conf-equip-armor").value;
+    c.status.equipment.armor_lvl = document.getElementById("conf-equip-armor-lvl").value;
     c.status.equipment.gloves = document.getElementById("conf-equip-gloves").value;
+    c.status.equipment.gloves_lvl = document.getElementById("conf-equip-gloves-lvl").value;
     c.status.equipment.kit1 = document.getElementById("conf-equip-kit1").value;
+    c.status.equipment.kit1_lvl = document.getElementById("conf-equip-kit1-lvl").value;
     c.status.equipment.kit2 = document.getElementById("conf-equip-kit2").value;
+    c.status.equipment.kit2_lvl = document.getElementById("conf-equip-kit2-lvl").value;
 
     let newStats = getCalculatedStats(c);
     c.status.stats = newStats;
@@ -2491,19 +2791,47 @@ function openGearModal(gearId) {
     document.getElementById("gear-modal-set").innerText = g.set;
     
     const cont = document.getElementById("gear-modal-stats-container");
-    let html = `<h3>Base Stats & Set Bonus</h3>`;
+    let html = `<h3>Base Stats Progression</h3>`;
     
     if (Object.keys(g.stats).length > 0) {
+        // Criar o cabeçalho da tabela (Stat | +0 | +1 | +2 | +3)
+        html += `
+        <div style="display: flex; font-size: 10px; font-weight: bold; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
+            <div style="flex: 2;">Stat</div>
+            <div style="flex: 1; text-align: right;">+0</div>
+            <div style="flex: 1; text-align: right;">+1</div>
+            <div style="flex: 1; text-align: right;">+2</div>
+            <div style="flex: 1; text-align: right;">+3</div>
+        </div>`;
+
         for (let key in g.stats) {
-            let formatted = formatStat(key, g.stats[key]);
-            html += `<div class="stat-row"><span class="stat-name">${key.replace(/_/g, ' ').toUpperCase()}</span><span class="stat-val" style="color: var(--primary-yellow);">${formatted}</span></div>`;
+            let statName = advancedStatsKeys.find(k => k.key === key)?.name || key.replace(/_/g, ' ').toUpperCase();
+            
+            // Verifica se é o formato novo (Array de 4 níveis) ou o antigo (um número só)
+            let val0 = Array.isArray(g.stats[key]) ? formatStat(key, g.stats[key][0]) : formatStat(key, g.stats[key]);
+            let val1 = Array.isArray(g.stats[key]) ? formatStat(key, g.stats[key][1]) : "-";
+            let val2 = Array.isArray(g.stats[key]) ? formatStat(key, g.stats[key][2]) : "-";
+            let val3 = Array.isArray(g.stats[key]) ? formatStat(key, g.stats[key][3]) : "-";
+
+            html += `
+            <div style="display: flex; font-size: 11px; padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); align-items: center;">
+                <div style="flex: 2; color: #FFF; font-weight: bold;">${statName}</div>
+                <div style="flex: 1; text-align: right; color: var(--text-dim); font-family: monospace;">${val0}</div>
+                <div style="flex: 1; text-align: right; color: var(--text-dim); font-family: monospace;">${val1}</div>
+                <div style="flex: 1; text-align: right; color: var(--text-dim); font-family: monospace;">${val2}</div>
+                <div style="flex: 1; text-align: right; color: var(--primary-yellow); font-weight: bold; font-family: monospace;">${val3}</div>
+            </div>`;
         }
     } else {
         html += `<p class="sub-text">No stats available for this equipment template.</p>`;
     }
 
     if (g.set !== "None" && equipmentSetsDB[g.set]) {
-        html += `<div class="intel-item mt-20" style="border:none;"><span class="intel-title">${g.set} Set (${equipmentSetsDB[g.set].req}-piece)</span><p class="intel-desc">${equipmentSetsDB[g.set].desc}</p></div>`;
+        html += `
+        <div class="intel-item mt-20" style="border:none; background: rgba(0,0,0,0.4);">
+            <span class="intel-title">${g.set} Set (${equipmentSetsDB[g.set].req}-piece)</span>
+            <p class="intel-desc">${equipmentSetsDB[g.set].desc}</p>
+        </div>`;
     }
 
     cont.innerHTML = html;
@@ -2630,6 +2958,7 @@ function openSettings(origin, idVal) {
     const parts = ["armor", "gloves", "kit1", "kit2"];
     parts.forEach(part => {
         document.getElementById(`conf-equip-${part}`).value = target.status.equipment[part];
+        document.getElementById(`conf-equip-${part}-lvl`).value = target.status.equipment[`${part}_lvl`] || 0;
     });
 
     switchOpTab('loadout');
@@ -2657,6 +2986,7 @@ function saveConfig(silent = false) {
     const parts = ["armor", "gloves", "kit1", "kit2"];
     parts.forEach(part => {
         target.status.equipment[part] = document.getElementById(`conf-equip-${part}`).value;
+        target.status.equipment[`${part}_lvl`] = document.getElementById(`conf-equip-${part}-lvl`).value;
     });
 
     if (!silent) {
@@ -2703,6 +3033,7 @@ function resetConfig() {
     const parts = ["armor", "gloves", "kit1", "kit2"];
     parts.forEach(part => {
         document.getElementById(`conf-equip-${part}`).value = "none";
+        document.getElementById(`conf-equip-${part}-lvl`).value = "0";
     });
 
     updateWeaponPreview(); 
