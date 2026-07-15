@@ -162,17 +162,17 @@ body {
 .text-center { text-align: center; }
 
 /* Inner Modal Tabs Logic */
-.op-tab-content { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+.op-tab-content { display: none; flex: 1; overflow: visible; flex-direction: column; min-height: 0; }
 .op-tab-content.active { display: flex; }
 
 /* Column Layouts */
-.config-grid { display: flex; gap: 15px; overflow: hidden; flex: 1; }
-.config-col { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.config-grid { display: flex; gap: 15px; overflow: visible; flex: 1; min-height: 0; }
+.config-col { flex: 1; display: flex; flex-direction: column; overflow: visible; min-height: 0; }
 .data-block { background: rgba(0,0,0,0.3); border: 1px solid var(--border-dim); padding: 10px; border-radius: 6px; }
 .data-block h3 { margin: 0 0 10px 0; font-size: 10px; color: var(--primary-yellow); text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px; letter-spacing: 1px; flex-shrink: 0; }
 
 /* Fill available height in col 2 and 3 */
-.flex-col-fill { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.flex-col-fill { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
 
 .weapon-display { display: flex; gap: 15px; align-items: center; }
 .weapon-preview { width: 50px; height: 50px; background: rgba(0,0,0,0.6); border: 1px solid var(--border-dim); flex-shrink: 0; background-size: 90%; background-repeat: no-repeat; background-position: center; display: flex; align-items: center; justify-content: center; border-radius: 4px; }
@@ -280,4 +280,121 @@ input:checked + .slider {
 }
 input:checked ~ .slider-knob {
     transform: translateX(20px);
+}
+
+/* ADVANCED FILTERS PANEL */
+.filters-panel {
+    background: rgba(15, 17, 22, 0.95);
+    border: 1px solid var(--border-dim);
+    border-radius: 6px;
+    padding: 15px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+}
+.filter-group label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+}
+.filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.filter-chip {
+    background: transparent;
+    color: var(--text-main);
+    border: 1px solid var(--border-dim);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.filter-chip:hover {
+    border-color: var(--text-dim);
+    background: rgba(255,255,255,0.05);
+}
+.filter-chip.active {
+    background: rgba(255,255,255,0.1);
+    color: #FFF;
+    border-color: #FFF;
+}
+/* CUSTOM SELECT & GEAR TOOLTIP */
+.custom-select-trigger {
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 10px;
+    line-height: 16px;
+    user-select: none;
+}
+.custom-select-options {
+    position: absolute;
+    bottom: 100%; /* Faz o menu abrir para CIMA */
+    left: 0;
+    width: 100%; /* Agora ele acompanha a largura da caixinha! */
+    min-width: 250px; /* Mas não encolhe demais para não esmagar o texto */
+    max-height: 250px;
+    overflow-y: auto;
+    background: rgba(15, 17, 22, 0.98);
+    border: 1px solid var(--primary-yellow);
+    z-index: 99999; /* Elevamos a prioridade para sobrepor TUDO */
+    border-radius: 4px;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.8);
+}
+.custom-select-item {
+    padding: 8px 10px;
+    font-size: 11px; /* Aumentamos levemente a fonte para combinar com a imagem */
+    color: var(--text-main);
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: 0.2s;
+    white-space: normal; 
+    line-height: 1.3;
+    display: flex;        /* Organiza imagem e texto lado a lado */
+    align-items: center;  /* Centraliza verticalmente */
+    gap: 12px;            /* Espaçamento perfeito entre a imagem e o texto */
+}
+.custom-select-item:hover {
+    background: rgba(230, 200, 67, 0.2);
+    color: var(--primary-yellow);
+}
+
+/* Tamanho e moldura da imagem dentro da lista */
+.custom-select-img {
+    width: 36px;  /* Tamanho grande e fácil de ver */
+    height: 36px;
+    background-color: rgba(0,0,0,0.4);
+    border: 1px solid var(--border-dim);
+    border-radius: 4px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    font-weight: bold;
+}
+.custom-select-name {
+    flex: 1;
+}
+.gear-tooltip {
+    display: none;
+    position: fixed;
+    width: 350px;
+    background: rgba(10, 12, 16, 0.98);
+    border: 1px solid var(--primary-yellow);
+    z-index: 10001;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+    pointer-events: none; /* Deixa o mouse atravessar o pop-up sem bugar */
 }

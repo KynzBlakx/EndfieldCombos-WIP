@@ -23,16 +23,58 @@
                     <button class="tab-btn" id="tab-btn-gear" onclick="switchTab('gear')">Gear</button>
                 </div>
                 <div class="search-filters mt-10">
-                    <input type="text" id="search-name" class="tech-input" placeholder="Search database..." onkeyup="renderRoster()">
-                    <select id="filter-element" class="tech-input" onchange="renderRoster()">
-                        <option value="All">All Elements</option>
-                        <option value="Physical">Physical</option>
-                        <option value="Heat">Heat</option>
-                        <option value="Cryo">Cryo</option>
-                        <option value="Nature">Nature</option>
-                        <option value="Electric">Electric</option>
-                        <option value="Arts">Originium Arts</option>
-                    </select>
+                    <input type="text" id="search-name" class="tech-input full-width" placeholder="Search database..." onkeyup="renderRoster()">
+                    <button class="btn-ghost" id="btn-toggle-filters" style="flex: none; width: auto;" onclick="toggleFiltersPanel()">
+                        <span style="font-size: 14px;">⚙</span> Filters
+                    </button>
+                </div>
+
+                <!-- PAINEL DE FILTROS AVANÇADOS -->
+                <div id="advanced-filters-panel" class="filters-panel" style="display: none;">
+                    <div class="filter-group">
+                        <label>Rarity</label>
+                        <div class="filter-options" id="filter-rarity">
+                            <button class="filter-chip" onclick="toggleFilter('rarity', 6)">6★</button>
+                            <button class="filter-chip" onclick="toggleFilter('rarity', 5)">5★</button>
+                            <button class="filter-chip" onclick="toggleFilter('rarity', 4)">4★</button>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Class</label>
+                        <div class="filter-options" id="filter-class">
+                            <button class="filter-chip" onclick="toggleFilter('class', 'Guard')">Guard</button>
+                            <button class="filter-chip" onclick="toggleFilter('class', 'Defender')">Defender</button>
+                            <button class="filter-chip" onclick="toggleFilter('class', 'Supporter')">Support</button>
+                            <button class="filter-chip" onclick="toggleFilter('class', 'Caster')">Caster</button>
+                            <button class="filter-chip" onclick="toggleFilter('class', 'Vanguard')">Vanguard</button>
+                            <button class="filter-chip" onclick="toggleFilter('class', 'Striker')">Striker</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Element</label>
+                        <div class="filter-options" id="filter-element">
+                            <button class="filter-chip" onclick="toggleFilter('element', 'Cryo')">Cryo</button>
+                            <button class="filter-chip" onclick="toggleFilter('element', 'Heat')">Heat</button>
+                            <button class="filter-chip" onclick="toggleFilter('element', 'Nature')">Nature</button>
+                            <button class="filter-chip" onclick="toggleFilter('element', 'Physical')">Physical</button>
+                            <button class="filter-chip" onclick="toggleFilter('element', 'Electric')">Electric</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Weapon</label>
+                        <div class="filter-options" id="filter-weapon">
+                            <button class="filter-chip" onclick="toggleFilter('weapon', 'Sword')">Sword</button>
+                            <button class="filter-chip" onclick="toggleFilter('weapon', 'Arts Unit')">Arts Unit</button>
+                            <button class="filter-chip" onclick="toggleFilter('weapon', 'Greatsword')">Greatsword</button>
+                            <button class="filter-chip" onclick="toggleFilter('weapon', 'Polearm')">Polearm</button>
+                            <button class="filter-chip" onclick="toggleFilter('weapon', 'Handcannons')">Handcannons</button>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-ghost full-width mt-10" onclick="clearAllFilters()" style="font-size: 10px;">Clear Filters</button>
                 </div>
                 <div class="roster-actions mt-10">
                     <button class="btn-ghost" onclick="clearSquad()">Clear Squad</button>
@@ -211,34 +253,46 @@
                                 <!-- ARMOR -->
                                 <div class="gear-item">
                                     <div class="gear-mini-icon" id="icon-equip-armor"></div>
-                                    <div style="flex: 2;"><label>ARMOR</label><select id="conf-equip-armor" class="tech-input full-width" onchange="updateLiveStatsAndDOM()"></select></div>
-                                    <div style="flex: 1;"><label>LVL</label><select id="conf-equip-armor-lvl" class="tech-input full-width text-center" onchange="updateLiveStatsAndDOM()">
-                                        <option value="0">+0</option><option value="1">+1</option><option value="2">+2</option><option value="3">+3</option>
-                                    </select></div>
+                                    <div style="flex: 2; position: relative;">
+                                        <label>ARMOR</label>
+                                        <div class="custom-select-trigger tech-input full-width" onclick="toggleCustomSelect('armor')" id="display-equip-armor">No Equipment</div>
+                                        <div class="custom-select-options" id="options-equip-armor" style="display: none;"></div>
+                                        <input type="hidden" id="conf-equip-armor" value="none">
+                                    </div>
+                                    <div style="flex: 1;"><label>LVL</label><select id="conf-equip-armor-lvl" class="tech-input full-width text-center" onchange="updateLiveStatsAndDOM()"><option value="0">+0</option><option value="1">+1</option><option value="2">+2</option><option value="3">+3</option></select></div>
                                 </div>
                                 <!-- GLOVES -->
                                 <div class="gear-item">
                                     <div class="gear-mini-icon" id="icon-equip-gloves"></div>
-                                    <div style="flex: 2;"><label>GLOVES</label><select id="conf-equip-gloves" class="tech-input full-width" onchange="updateLiveStatsAndDOM()"></select></div>
-                                    <div style="flex: 1;"><label>LVL</label><select id="conf-equip-gloves-lvl" class="tech-input full-width text-center" onchange="updateLiveStatsAndDOM()">
-                                        <option value="0">+0</option><option value="1">+1</option><option value="2">+2</option><option value="3">+3</option>
-                                    </select></div>
+                                    <div style="flex: 2; position: relative;">
+                                        <label>GLOVES</label>
+                                        <div class="custom-select-trigger tech-input full-width" onclick="toggleCustomSelect('gloves')" id="display-equip-gloves">No Equipment</div>
+                                        <div class="custom-select-options" id="options-equip-gloves" style="display: none;"></div>
+                                        <input type="hidden" id="conf-equip-gloves" value="none">
+                                    </div>
+                                    <div style="flex: 1;"><label>LVL</label><select id="conf-equip-gloves-lvl" class="tech-input full-width text-center" onchange="updateLiveStatsAndDOM()"><option value="0">+0</option><option value="1">+1</option><option value="2">+2</option><option value="3">+3</option></select></div>
                                 </div>
                                 <!-- KIT 1 -->
                                 <div class="gear-item">
                                     <div class="gear-mini-icon" id="icon-equip-kit1"></div>
-                                    <div style="flex: 2;"><label>KIT 1</label><select id="conf-equip-kit1" class="tech-input full-width" onchange="updateLiveStatsAndDOM()"></select></div>
-                                    <div style="flex: 1;"><label>LVL</label><select id="conf-equip-kit1-lvl" class="tech-input full-width text-center" onchange="updateLiveStatsAndDOM()">
-                                        <option value="0">+0</option><option value="1">+1</option><option value="2">+2</option><option value="3">+3</option>
-                                    </select></div>
+                                    <div style="flex: 2; position: relative;">
+                                        <label>KIT 1</label>
+                                        <div class="custom-select-trigger tech-input full-width" onclick="toggleCustomSelect('kit1')" id="display-equip-kit1">No Equipment</div>
+                                        <div class="custom-select-options" id="options-equip-kit1" style="display: none;"></div>
+                                        <input type="hidden" id="conf-equip-kit1" value="none">
+                                    </div>
+                                    <div style="flex: 1;"><label>LVL</label><select id="conf-equip-kit1-lvl" class="tech-input full-width text-center" onchange="updateLiveStatsAndDOM()"><option value="0">+0</option><option value="1">+1</option><option value="2">+2</option><option value="3">+3</option></select></div>
                                 </div>
                                 <!-- KIT 2 -->
                                 <div class="gear-item">
                                     <div class="gear-mini-icon" id="icon-equip-kit2"></div>
-                                    <div style="flex: 2;"><label>KIT 2</label><select id="conf-equip-kit2" class="tech-input full-width" onchange="updateLiveStatsAndDOM()"></select></div>
-                                    <div style="flex: 1;"><label>LVL</label><select id="conf-equip-kit2-lvl" class="tech-input full-width text-center" onchange="updateLiveStatsAndDOM()">
-                                        <option value="0">+0</option><option value="1">+1</option><option value="2">+2</option><option value="3">+3</option>
-                                    </select></div>
+                                    <div style="flex: 2; position: relative;">
+                                        <label>KIT 2</label>
+                                        <div class="custom-select-trigger tech-input full-width" onclick="toggleCustomSelect('kit2')" id="display-equip-kit2">No Equipment</div>
+                                        <div class="custom-select-options" id="options-equip-kit2" style="display: none;"></div>
+                                        <input type="hidden" id="conf-equip-kit2" value="none">
+                                    </div>
+                                    <div style="flex: 1;"><label>LVL</label><select id="conf-equip-kit2-lvl" class="tech-input full-width text-center" onchange="updateLiveStatsAndDOM()"><option value="0">+0</option><option value="1">+1</option><option value="2">+2</option><option value="3">+3</option></select></div>
                                 </div>
                             </div>
                         </div>

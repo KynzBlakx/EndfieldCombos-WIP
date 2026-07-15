@@ -3,6 +3,12 @@ let activeOrigin = null;
 let activeId = null;
 let currentTab = 'operators'; 
 let currentWeaponModalId = null;
+let activeFilters = {
+    rarity: [],
+    class: [],
+    element: [],
+    weapon: []
+};
 
 // ---------------- SOUND SYSTEM & SETTINGS ---------------- //
 let isAudioPlaying = false;
@@ -1253,6 +1259,216 @@ const equipmentDB = [
             all_skill_dmg_bonus: [0.276, 0.304, 0.331, 0.359]
         },
         img: "type_50_yinglung_knife_t1.png"
+    },
+    {
+        id: "eq_bonekrusha_poncho_t1",
+        name: "Bonekrusha Poncho T1",
+        type: "Armor",
+        set: "Bonekrusha",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            will: [87, 95, 104, 113],
+            agility: [58, 63, 69, 75],
+            ult_gain_eff: [0.123, 0.136, 0.148, 0.16]
+        },
+        img: "bonekrusha_poncho_t1.png"
+    },
+    {
+        id: "eq_bonekrusha_heavy_armor_t2",
+        name: "Bonekrusha Heavy Armor T2",
+        type: "Armor",
+        set: "Bonekrusha",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            agility: [87, 95, 104, 113],
+            strength: [58, 63, 69, 75],
+            cryo_elec_dmg_bonus: [0.115, 0.127, 0.138, 0.149]
+        },
+        img: "bonekrusha_heavy_armor_t2.png"
+    },
+    {
+        id: "eq_bonekrusha_heavy_armor_t1",
+        name: "Bonekrusha Heavy Armor T1",
+        type: "Armor",
+        set: "Bonekrusha",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            agility: [87, 95, 104, 113],
+            strength: [58, 63, 69, 75],
+            combo_dmg_bonus: [0.207, 0.228, 0.248, 0.269]
+        },
+        img: "bonekrusha_heavy_armor_t1.png"
+    },
+    {
+        id: "eq_bonekrusha_heavy_armor",
+        name: "Bonekrusha Heavy Armor",
+        type: "Armor",
+        set: "Bonekrusha",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            agility: [87, 95, 104, 113],
+            intellect: [58, 63, 69, 75],
+            ult_gain_eff: [0.123, 0.136, 0.148, 0.16]
+        },
+        img: "bonekrusha_heavy_armor.png"
+    },
+    {
+        id: "eq_bonekrusha_poncho",
+        name: "Bonekrusha Poncho",
+        type: "Armor",
+        set: "Bonekrusha",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [56, 56, 56, 56],
+            will: [87, 95, 104, 113],
+            strength: [58, 63, 69, 75],
+            combo_dmg_bonus: [0.207, 0.228, 0.248, 0.269]
+        },
+        img: "bonekrusha_poncho.png"
+    },
+    {
+        id: "eq_bonekrusha_wristband",
+        name: "Bonekrusha Wristband",
+        type: "Gloves",
+        set: "Bonekrusha",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [42, 42, 42, 42],
+            strength: [65, 71, 78, 84],
+            agility: [43, 47, 51, 55],
+            heat_nature_dmg_bonus: [0.192, 0.211, 0.23, 0.249]
+        },
+        img: "bonekrusha_wristband.png"
+    },
+    {
+        id: "eq_bonekrusha_wristband_t1",
+        name: "Bonekrusha Wristband T1",
+        type: "Gloves",
+        set: "Bonekrusha",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [42, 42, 42, 42],
+            agility: [65, 71, 78, 84],
+            strength: [43, 47, 51, 55],
+            cryo_elec_dmg_bonus: [0.192, 0.211, 0.23, 0.249]
+        },
+        img: "bonekrusha_wristband_t1.png"
+    },
+    {
+        id: "eq_bonekrusha_gloves",
+        name: "Bonekrusha Gloves",
+        type: "Gloves",
+        set: "Bonekrusha",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [42, 42, 42, 42],
+            will: [65, 71, 78, 84],
+            agility: [43, 47, 51, 55],
+            cryo_elec_dmg_bonus: [0.192, 0.211, 0.23, 0.249]
+        },
+        img: "bonekrusha_gloves.png"
+    },
+    {
+        id: "eq_bonekrusha_figurine_t1",
+        name: "Bonekrusha Figurine T1",
+        type: "Kit",
+        set: "Bonekrusha",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            will: [32, 35, 38, 41],
+            intellect: [21, 23, 25, 27],
+            combo_dmg_bonus: [0.414, 0.455, 0.497, 0.538]
+        },
+        img: "bonekrusha_figurine_t1.png"
+    },
+    {
+        id: "eq_bonekrusha_figurine",
+        name: "Bonekrusha Figurine",
+        type: "Kit",
+        set: "Bonekrusha",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            will: [32, 35, 38, 41],
+            agility: [21, 23, 25, 27],
+            skill_dmg_bonus: [0.414, 0.455, 0.497, 0.538]
+        },
+        img: "bonekrusha_figurine.png"
+    },
+    {
+        id: "eq_bonekrusha_mask_t1",
+        name: "Bonekrusha Mask T1",
+        type: "Kit",
+        set: "Bonekrusha",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            agility: [32, 35, 38, 41],
+            strength: [21, 23, 25, 27],
+            crit_rate: [0.103, 0.114, 0.124, 0.135]
+        },
+        img: "bonekrusha_mask_t1.png"
+    },
+    {
+        id: "eq_bonekrusha_figurine_t2",
+        name: "Bonekrusha Figurine T2",
+        type: "Kit",
+        set: "Bonekrusha",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            will: [32, 35, 38, 41],
+            intellect: [21, 23, 25, 27],
+            skill_dmg_bonus: [0.414, 0.455, 0.497, 0.538]
+        },
+        img: "bonekrusha_figurine_t2.png"
+    },
+    {
+        id: "eq_bonekrusha_mask",
+        name: "Bonekrusha Mask",
+        type: "Kit",
+        set: "Bonekrusha",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            agility: [32, 35, 38, 41],
+            strength: [21, 23, 25, 27],
+            dmg_vs_staggered: [0.414, 0.455, 0.497, 0.538]
+        },
+        img: "bonekrusha_mask.png"
+    },
+    {
+        id: "eq_bonekrusha_mask_t2",
+        name: "Bonekrusha Mask T2",
+        type: "Kit",
+        set: "Bonekrusha",
+        rarity: "Gold",
+        level: 70,
+        stats: {
+            defense: [21, 21, 21, 21],
+            agility: [32, 35, 38, 41],
+            strength: [21, 23, 25, 27],
+            skill_dmg_bonus: [0.414, 0.455, 0.497, 0.538]
+        },
+        img: "bonekrusha_mask_t2.png"
     }
 ];
 
@@ -1271,6 +1487,11 @@ const equipmentSetsDB = {
         req: 3,
         desc: "3-piece set effect: Wearer's ATK +15%. When any operator in the team casts a battle skill, the wearer gains 1 stack of Yinglung's Edge that gives DMG +20% to the wearer's next combo skill. Yinglung's Edge can stack 3 time(s).",
         mult: { atk_percent: 0.15, combo_dmg_bonus: 0.60 }
+    },
+    "Bonekrusha": {
+        req: 3,
+        desc: "3-piece set effect: Wearer's ATK +15%. When the wearer casts a combo skill, the wearer gains 1 stack of Bonekrushing Smash that grants the wearer's next battle skill DMG Dealt +30%. Bonekrushing Smash can stack 2 time(s).",
+        mult: { atk_percent: 0.15, skill_dmg_bonus: 0.60 }
     }
 };
 
@@ -2427,7 +2648,15 @@ function switchTab(tab) {
     document.getElementById('tab-btn-operators').classList.toggle('active', tab === 'operators');
     document.getElementById('tab-btn-weapons').classList.toggle('active', tab === 'weapons');
     document.getElementById('tab-btn-gear').classList.toggle('active', tab === 'gear');
-    document.getElementById('filter-element').style.display = tab === 'operators' ? 'inline-block' : 'none';
+    
+    // Mostra o botão de filtros APENAS na aba de operadores
+    document.getElementById('btn-toggle-filters').style.display = tab === 'operators' ? 'inline-block' : 'none';
+    
+    // Força o fechamento do painel caso saia da aba de operadores
+    if (tab !== 'operators') {
+        document.getElementById('advanced-filters-panel').style.display = 'none';
+    }
+    
     renderRoster();
 }
 
@@ -2447,20 +2676,31 @@ function initSelects() {
     selWpn.innerHTML = "";
     weaponsDB.forEach(w => selWpn.innerHTML += `<option value="${w.id}">${w.name} (${w.type})</option>`);
     
-    const selArmor = document.getElementById("conf-equip-armor");
-    const selGloves = document.getElementById("conf-equip-gloves");
-    const selKit1 = document.getElementById("conf-equip-kit1");
-    const selKit2 = document.getElementById("conf-equip-kit2");
+    // Injeta os itens nas nossas novas divs customizadas
+    const optsArmor = document.getElementById("options-equip-armor");
+    const optsGloves = document.getElementById("options-equip-gloves");
+    const optsKit1 = document.getElementById("options-equip-kit1");
+    const optsKit2 = document.getElementById("options-equip-kit2");
     
-    [selArmor, selGloves, selKit1, selKit2].forEach(sel => sel.innerHTML = "");
+    [optsArmor, optsGloves, optsKit1, optsKit2].forEach(el => el.innerHTML = "");
 
     equipmentDB.forEach(eq => {
-        let opt = `<option value="${eq.id}">${eq.name}</option>`;
-        if (eq.type === "Armor" || eq.type === "Any") selArmor.innerHTML += opt;
-        if (eq.type === "Gloves" || eq.type === "Any") selGloves.innerHTML += opt;
+        // Usa a mesma regra inteligente de pastas para encontrar a miniatura
+        let folderName = eq.set === "None" ? "no_set_bonuses" : eq.set.toLowerCase().replace(/ /g, '_');
+        let imgHtml = eq.img ? `<div class="custom-select-img" style="background-image: url('imagens/Gears/${folderName}/${eq.img}');"></div>` : `<div class="custom-select-img">?</div>`;
+
+        // Cria a linha do menu com a imagem + texto
+        let itemHTML = `
+        <div class="custom-select-item" onclick="selectCustomGear(this.parentElement.id, '${eq.id}', '${eq.name.replace(/'/g, "\\'")}')" onmouseenter="showGearTooltip(event, '${eq.id}')" onmouseleave="hideGearTooltip()">
+            ${imgHtml}
+            <span class="custom-select-name">${eq.name}</span>
+        </div>`;
+        
+        if (eq.type === "Armor" || eq.type === "Any") optsArmor.innerHTML += itemHTML;
+        if (eq.type === "Gloves" || eq.type === "Any") optsGloves.innerHTML += itemHTML;
         if (eq.type === "Kit" || eq.type === "Any") {
-            selKit1.innerHTML += opt;
-            selKit2.innerHTML += opt;
+            optsKit1.innerHTML += itemHTML;
+            optsKit2.innerHTML += itemHTML;
         }
     });
 }
@@ -2478,9 +2718,17 @@ function renderRoster() {
     grid.innerHTML = "";
 
     if (currentTab === 'operators') {
-        const filter = document.getElementById("filter-element").value;
         characters.forEach(p => {
-            if ((filter === "All" || p.element === filter) && p.name.toLowerCase().includes(search)) {
+            // Verifica o nome na barra de pesquisa
+            let passSearch = p.name.toLowerCase().includes(search);
+            
+            // Verifica as lógicas dos filtros (Se a array estiver vazia, passa direto. Se tiver algo selecionado, checa se bate com o operador)
+            let passRarity = activeFilters.rarity.length === 0 || activeFilters.rarity.includes(p.rarity);
+            let passClass = activeFilters.class.length === 0 || activeFilters.class.includes(p.class);
+            let passElement = activeFilters.element.length === 0 || activeFilters.element.includes(p.element);
+            let passWeapon = activeFilters.weapon.length === 0 || activeFilters.weapon.includes(p.weapon_type);
+
+            if (passSearch && passRarity && passClass && passElement && passWeapon) {
                 grid.innerHTML += `
                     <div class="char-card" draggable="true" ondragstart="drag(event, 'roster', '${p.id}')" onclick="openSettings('list', '${p.id}')">
                         <div class="char-img" style="${p.img ? `background-image: url('imagens/Operators/${p.img}');` : ''}">
@@ -2870,12 +3118,20 @@ function updateLiveStatsAndDOM() {
 
     equips.forEach(eqObj => {
         let eq = equipmentDB.find(x => x.id === eqObj.id);
+        const partType = eqObj.el.id.replace("conf-equip-", ""); // armor, gloves, etc
+
         if (eq && eq.id !== 'none') {
             if (lvl < eq.level) {
+                // AQUI FOI O ERRO: Reseta o valor invisível
                 eqObj.el.value = 'none';
+                
+                // AQUI É A CORREÇÃO: Reseta também o nome na tela!
+                document.getElementById(`display-equip-${partType}`).innerText = "No Equipment";
+                
+                // O resto é o código de tremer de sempre
                 eqObj.icon.style.backgroundImage = "none";
-                eqObj.el.classList.add('shake-error');
-                setTimeout(() => eqObj.el.classList.remove('shake-error'), 400);
+                document.getElementById(`display-equip-${partType}`).classList.add('shake-error');
+                setTimeout(() => document.getElementById(`display-equip-${partType}`).classList.remove('shake-error'), 400);
                 showToast(`Cannot equip ${eq.name}. Requires Operator Level ${eq.level}.`);
             } else {
                 if (eq.img) {
@@ -3180,6 +3436,7 @@ function openSettings(origin, idVal) {
     document.getElementById("conf-char-affinity").value = target.status.affinity;
     document.getElementById("conf-char-potential").value = target.status.potential;
     
+    // O código entra exatamente aqui:
     const selWpn = document.getElementById("conf-weapon-id");
     selWpn.innerHTML = "";
     weaponsDB.forEach(w => {
@@ -3193,6 +3450,10 @@ function openSettings(origin, idVal) {
         document.getElementById("conf-weapon-id").value = "wpn_test_00";
         target.status.weapon_id = "wpn_test_00";
     }
+    if (!document.getElementById("conf-weapon-id").value) {
+        document.getElementById("conf-weapon-id").value = "wpn_test_00";
+        target.status.weapon_id = "wpn_test_00";
+    }
 
     document.getElementById("conf-weapon-level").value = target.status.weapon_level;
     document.getElementById("conf-weapon-e1").value = target.status.weapon_e1 || 1;
@@ -3201,9 +3462,14 @@ function openSettings(origin, idVal) {
     
     updateWeaponPreview();
     
+    // Atualiza os equipamentos e os textos do menu suspenso (Declarado uma única vez)
     const parts = ["armor", "gloves", "kit1", "kit2"];
     parts.forEach(part => {
-        document.getElementById(`conf-equip-${part}`).value = target.status.equipment[part];
+        const gearId = target.status.equipment[part];
+        const gearObj = equipmentDB.find(x => x.id === gearId);
+        
+        document.getElementById(`conf-equip-${part}`).value = gearId;
+        document.getElementById(`display-equip-${part}`).innerText = gearObj ? gearObj.name : "No Equipment";
         document.getElementById(`conf-equip-${part}-lvl`).value = target.status.equipment[`${part}_lvl`] || 0;
     });
 
@@ -3279,6 +3545,7 @@ function resetConfig() {
     const parts = ["armor", "gloves", "kit1", "kit2"];
     parts.forEach(part => {
         document.getElementById(`conf-equip-${part}`).value = "none";
+        document.getElementById(`display-equip-${part}`).innerText = "No Equipment"; // Atualiza a palavra visível!
         document.getElementById(`conf-equip-${part}-lvl`).value = "0";
     });
 
@@ -3439,4 +3706,125 @@ function clearLocalSave() {
         closeSystemSettings();
         showToast("Local save data cleared successfully!");
     }
+}
+
+// ---------------- ADVANCED FILTERS ---------------- //
+function toggleFiltersPanel() {
+    const panel = document.getElementById("advanced-filters-panel");
+    if (panel.style.display === "none") {
+        panel.style.display = "flex";
+    } else {
+        panel.style.display = "none";
+    }
+}
+
+function toggleFilter(category, value) {
+    const arr = activeFilters[category];
+    const index = arr.indexOf(value);
+    
+    if (index > -1) {
+        // Se já estava selecionado, tira (desliga)
+        arr.splice(index, 1);
+        event.currentTarget.classList.remove('active');
+    } else {
+        // Se não estava, adiciona (liga)
+        arr.push(value);
+        event.currentTarget.classList.add('active');
+    }
+    
+    renderRoster(); // Atualiza a tela instantaneamente
+}
+
+function clearAllFilters() {
+    activeFilters = { rarity: [], class: [], element: [], weapon: [] };
+    
+    // Tira a classe 'active' de todos os botões visuais
+    document.querySelectorAll('.filter-chip').forEach(btn => btn.classList.remove('active'));
+    
+    renderRoster(); // Atualiza a tela
+}
+// ---------------- CUSTOM SELECT & HOVER TOOLTIP LOGIC ---------------- //
+function toggleCustomSelect(type) {
+    // Fecha os outros antes de abrir
+    document.querySelectorAll('.custom-select-options').forEach(el => {
+        if (el.id !== `options-equip-${type}`) el.style.display = 'none';
+    });
+    const opts = document.getElementById(`options-equip-${type}`);
+    opts.style.display = opts.style.display === 'block' ? 'none' : 'block';
+}
+
+function selectCustomGear(containerId, gearId, gearName) {
+    const type = containerId.split('-')[2]; // Pega a palavra 'armor', 'gloves', etc.
+    document.getElementById(`conf-equip-${type}`).value = gearId; // Salva na input invisivel
+    document.getElementById(`display-equip-${type}`).innerText = gearName; // Muda o texto
+    document.getElementById(containerId).style.display = 'none'; // Fecha o menu
+    hideGearTooltip();
+    updateLiveStatsAndDOM();
+}
+
+// Fecha menus abertos se clicar fora deles
+window.addEventListener('click', function(e) {
+    if (!e.target.closest('.custom-select-trigger') && !e.target.closest('.custom-select-options')) {
+        document.querySelectorAll('.custom-select-options').forEach(el => el.style.display = 'none');
+    }
+});
+
+function showGearTooltip(event, gearId) {
+    if (gearId === 'none') return;
+    const g = equipmentDB.find(x => x.id === gearId);
+    if (!g) return;
+
+    let tooltip = document.getElementById('global-gear-tooltip');
+    if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'global-gear-tooltip';
+        tooltip.className = 'gear-tooltip';
+        document.body.appendChild(tooltip);
+    }
+
+    let html = `<h4 style="margin: 0 0 5px 0; color: var(--primary-yellow); font-size: 14px;">${g.name}</h4>`;
+    html += `<span class="badge" style="margin-bottom: 10px; display: inline-block;">${g.set}</span>`;
+    
+    if (Object.keys(g.stats).length > 0) {
+        html += `<div style="display: flex; font-size: 9px; font-weight: bold; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
+            <div style="flex: 2;">Stat</div><div style="flex: 1; text-align: right;">+0</div><div style="flex: 1; text-align: right;">+1</div><div style="flex: 1; text-align: right;">+2</div><div style="flex: 1; text-align: right;">+3</div>
+        </div>`;
+        for (let key in g.stats) {
+            let statName = advancedStatsKeys.find(k => k.key === key)?.name || key.replace(/_/g, ' ').toUpperCase();
+            let val0 = Array.isArray(g.stats[key]) ? formatStat(key, g.stats[key][0]) : formatStat(key, g.stats[key]);
+            let val1 = Array.isArray(g.stats[key]) ? formatStat(key, g.stats[key][1]) : "-";
+            let val2 = Array.isArray(g.stats[key]) ? formatStat(key, g.stats[key][2]) : "-";
+            let val3 = Array.isArray(g.stats[key]) ? formatStat(key, g.stats[key][3]) : "-";
+
+            html += `<div style="display: flex; font-size: 10px; padding: 4px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); align-items: center;">
+                <div style="flex: 2; color: #FFF; font-weight: bold;">${statName}</div>
+                <div style="flex: 1; text-align: right; color: var(--text-dim);">${val0}</div>
+                <div style="flex: 1; text-align: right; color: var(--text-dim);">${val1}</div>
+                <div style="flex: 1; text-align: right; color: var(--text-dim);">${val2}</div>
+                <div style="flex: 1; text-align: right; color: var(--primary-yellow);">${val3}</div>
+            </div>`;
+        }
+    }
+    if (g.set !== "None" && equipmentSetsDB[g.set]) {
+        html += `<div style="margin-top: 10px; font-size: 9px; color: var(--text-dim);"><strong>${g.set} Set:</strong> ${equipmentSetsDB[g.set].desc}</div>`;
+    }
+
+    tooltip.innerHTML = html;
+    tooltip.style.display = 'block';
+
+    // Inteligência Espacial para posicionar a caixa do lado do mouse
+    const rect = event.currentTarget.getBoundingClientRect();
+    let leftPos = rect.right + 15;
+    let topPos = rect.top - 50; 
+    
+    // Se for estourar o canto direito da tela, joga pra esquerda
+    if (leftPos + 350 > window.innerWidth) leftPos = rect.left - 350 - 15;
+    
+    tooltip.style.left = leftPos + 'px';
+    tooltip.style.top = topPos + 'px';
+}
+
+function hideGearTooltip() {
+    const tooltip = document.getElementById('global-gear-tooltip');
+    if (tooltip) tooltip.style.display = 'none';
 }
