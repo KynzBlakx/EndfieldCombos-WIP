@@ -3436,14 +3436,16 @@ function openSettings(origin, idVal) {
     document.getElementById("conf-char-affinity").value = target.status.affinity;
     document.getElementById("conf-char-potential").value = target.status.potential;
     
-    // O código entra exatamente aqui:
+    // --- BLOCO CORRIGIDO: Recria o menu de armas filtrando pelo tipo correto ---
     const selWpn = document.getElementById("conf-weapon-id");
     selWpn.innerHTML = "";
     weaponsDB.forEach(w => {
-        if (w.type === "Any" || w.type === target.weapon_type) {
+        // Adicionada a regra que checa se o nome da arma com "s" no final bate com a classe do personagem
+        if (w.type === "Any" || w.type === target.weapon_type || w.type + "s" === target.weapon_type) {
             selWpn.innerHTML += `<option value="${w.id}">${w.name} (${w.type})</option>`;
         }
     });
+    // ---------------------------------------------------------------------------
 
     document.getElementById("conf-weapon-id").value = target.status.weapon_id;
     if (!document.getElementById("conf-weapon-id").value) {
